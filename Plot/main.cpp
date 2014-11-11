@@ -69,7 +69,9 @@ bool samesign_check(double a, double b){
 }
 
 float phi = 0, theta = 0, fov = 90, radius = 20;
-float px, py, pz;
+//float px, py, pz;
+//float lx,ly,lz;
+Vector3d position(0,0,20), eyeLook;
 void normalize()
 {
 	for(int i=0; i<Size; i++)
@@ -366,7 +368,9 @@ void display()
   for(int i=0; i < 2; i++){
 	  cp_disp.x = cp[i].x - (double)sizeX/2;	cp_disp.y = cp[i].y - (double)sizeY/2;	cp_disp.z = cp[i].z - (double)sizeZ/2;
 	  for(int j=0; j< 3; j++){
-		  ya.x = e_vec[i][j].y*pz - e_vec[i][j].z*py;	ya.y = e_vec[i][j].z*px- e_vec[i][j].x*pz;	ya.z = e_vec[i][j].x*py - e_vec[i][j].y*px;
+		  ya.x = e_vec[i][j].y*position.z - e_vec[i][j].z*position.y;	
+		  ya.y = e_vec[i][j].z*position.x- e_vec[i][j].x*position.z;
+		  ya.z = e_vec[i][j].x*position.y - e_vec[i][j].y*position.x;
 		  ya_size = sqrt(ya.x*ya.x + ya.y*ya.y + ya.z*ya.z);
 		  
 		  //固有ベクトル描画
@@ -460,26 +464,40 @@ void display()
 
 int width, height;
 
+void changePosition()
+{
+	glViewport(0, 0, width, height);
+
+	glLoadIdentity();
+	//glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
+
+	gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
+	gluLookAt(position.x, position.y, position.z,
+		eyeLook.x,  eyeLook.y, eyeLook.z, 
+		0.0, 1.0, 0.0);
+
+	glutPostRedisplay();
+}
+
 void look()
 {
-	
+	/*
   glViewport(0, 0, width, height);
 
   glLoadIdentity();
 	  //glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
   cout << "look" << endl;
   gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
+  */
+	
+  position.x = radius * cos(phi) * cos(theta) + eyeLook.x;
+  position.y = radius * sin(phi) + eyeLook.y;
+  position.z = radius * cos(phi) * sin(theta) + eyeLook.z;
   
-  px = radius * cos(phi) * cos(theta);
-  py = radius * sin(phi);
-  pz = radius * cos(phi) * sin(theta);
-  gluLookAt(px, py, pz,
-	   0,  0, 0, 
-	   0.0, 1.0, 0.0);
-
-  glutPostRedisplay();
-  
+  changePosition();
 }
+
+
 
 void resize(int w, int h)
 {
@@ -492,6 +510,48 @@ void resize(int w, int h)
 void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
+}
+
+int lastX, lastY;
+
+void push(int button, int state, int x, int y)
+{
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		lastX = x; lastY = y;
+	}
+}
+
+void mouse(int x, int y)
+{
+	//cout << x << "," << y << "," << lastX << "," << lastY << endl;
+	cout << "move" << endl;
+	float speed = 1.0;
+	float moveX = speed*(x - lastX);
+	float moveY = speed*(y - lastY);
+
+	cout <<moveX << "," << moveY << "," << x << "," << y <<endl; 
+	Vector3d up(0,1,0);
+	Vector3d dir = eyeLook - position;//(lx-px,ly-py,lz-pz);
+	Vector3d right = dir.cross(up);
+	Vector3d upper = right.cross(dir);
+	right.normalize();
+
+	upper.normalize();
+	right.mul(moveX);
+	upper.mul(moveY);
+	position += right - upper;
+	eyeLook  += right - upper; 
+	/*
+	cout << "right2" << right << endl;
+	cout << "up" << up << endl;
+	cout << "pos" << position << endl;
+	cout << "eye" << eyeLook << endl;
+	cout << "dir" << dir << endl;
+	*/
+	changePosition();
+	lastX = x;
+	lastY = y;
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -672,6 +732,9 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(resize);
 	//3d
 	glutKeyboardFunc(keyboard);
+
+	glutMouseFunc(push);
+	glutMotionFunc(mouse);
 	init();
 	glutMainLoop();
 	

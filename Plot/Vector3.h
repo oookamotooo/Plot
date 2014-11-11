@@ -209,7 +209,7 @@ public:
 		return *this;
 	}
 
-	Vector3& operator*=(const T &scalar)
+	Vector3& operator*=(const float &scalar)
 	{
 		this->x *= scalar;
 		this->y *= scalar;
