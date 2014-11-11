@@ -9,6 +9,7 @@
 #include <math.h>
 #include "Vector3.h"
 #include "define.h"
+#include "Camera.h"
 
 //#define round_point 12
 #define PI  3.14159265358979323846
@@ -22,34 +23,6 @@ Vector3d cp[CP_NUM];
 double e_val[CP_NUM][3];
 Vector3d e_vec[CP_NUM][3];
 Vector3d round_cp[CP_NUM][round_num];
-
-class Camera
-{
-public:
-	Vector3d position, look, up;
-	float theta, phi, radius;
-	Camera()
-	{
-		theta = 0;
-		phi = 0;
-		position = Vector3d(0,0,1);
-		look = Vector3d();
-		up = Vector3d(0,1,0);
-	}
-
-	void RotateTheta(float deg)
-	{
-
-	}
-
-	void RotatePhi(float deg)
-	{
-
-	}
-
-};
-
-Camera camera;
 
 double runge_kutta(double x, double y, double z, int i, double step);
 
@@ -271,6 +244,7 @@ double runge_kutta(double x, double y, double z, int i, double step){
 
 void display()
 {
+	Camera::getCamera()->SetViewportAndMatrix();
   Vector3d plot;	
   Vector3d cp_disp;
   Vector3d ya;
@@ -281,7 +255,6 @@ void display()
   //ê}å`ÇÃï`âÊ 
   glColor3d(0.0, 0.0, 0.0);
 
-  cout << "diso" << endl;
   //int sx = 110, sy=55, sz=30;
   
   /*
@@ -303,53 +276,53 @@ void display()
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,0,0);
@@ -497,14 +470,9 @@ void look()
   changePosition();
 }
 
-
-
 void resize(int w, int h)
 {
-	width = w;
-	height = h;
-
-  look();
+	Camera::getCamera()->SetWindowSize(w,h);
 }
 
 void init(void)
@@ -512,75 +480,19 @@ void init(void)
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
-int lastX, lastY;
-
 void push(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		lastX = x; lastY = y;
-	}
+	CameraManager::MousePress(button, state, x, y);
 }
 
 void mouse(int x, int y)
 {
-	//cout << x << "," << y << "," << lastX << "," << lastY << endl;
-	cout << "move" << endl;
-	float speed = 1.0;
-	float moveX = speed*(x - lastX);
-	float moveY = speed*(y - lastY);
-
-	cout <<moveX << "," << moveY << "," << x << "," << y <<endl; 
-	Vector3d up(0,1,0);
-	Vector3d dir = eyeLook - position;//(lx-px,ly-py,lz-pz);
-	Vector3d right = dir.cross(up);
-	Vector3d upper = right.cross(dir);
-	right.normalize();
-
-	upper.normalize();
-	right.mul(moveX);
-	upper.mul(moveY);
-	position += right - upper;
-	eyeLook  += right - upper; 
-	/*
-	cout << "right2" << right << endl;
-	cout << "up" << up << endl;
-	cout << "pos" << position << endl;
-	cout << "eye" << eyeLook << endl;
-	cout << "dir" << dir << endl;
-	*/
-	changePosition();
-	lastX = x;
-	lastY = y;
+	CameraManager::MouseMove(x,y);
 }
 
 void keyboard(unsigned char key, int x, int y)
 {
-	cout << "keyborad" << endl;
-  switch (key) {
-  case 'w':
-    phi += 1.0 / 180.0 * M_PI;
-	break;
-  case 's':
-	  phi -= 1.0 / 180.0 * M_PI;
-	  break;
-  case 'a':
-	  theta += 1.0 / 180.0 * M_PI;
-	  break;
-  case 'd':
-	  theta -= 1.0 /180.0 *  M_PI;
-	  break;
-  case 'q':
-	  //fov+=1;
-	  radius += 1.0;
-	  break;
-  case 'e':
-	  radius = max(1.0, radius-1.0);
-	  break;
-  default:
-    break;
-  }
-  look();
+	CameraManager::Keyboard(key, x, y);
 }
 
 void toVector(float *data)
