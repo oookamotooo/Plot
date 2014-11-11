@@ -115,9 +115,9 @@ void readText(){
 }
 
 void read_cp(){
-	FILE *fp = fopen("cp.txt", "r");
+	FILE *fp = fopen("cp_sub.txt", "r");
 
-	for(int i=0; i < CP_NUM; i++){
+	for(int i=0; i < 4;/*CP_NUM;*/ i++){
 		fscanf(fp,"%lf %lf %lf", &cp[i].x, &cp[i].y, &cp[i].z);
 	}
 
@@ -128,9 +128,9 @@ void read_cp(){
 }
 
 void read_eigen(){
-	FILE *fp = fopen("p_eigen.txt", "r");
+	FILE *fp = fopen("p_eigen_sub.txt", "r");
 
-	for(int i=0; i<2; i++){
+	for(int i=0; i<4; i++){
 		fscanf(fp, "%lf %lf %lf", &e_val[i][0], &e_val[i][1], &e_val[i][2]);
 		
 		fscanf(fp, "%lf %lf %lf", &e_vec[i][0].x, &e_vec[i][1].x, &e_vec[i][2].x);
@@ -235,7 +235,6 @@ double streamline(double x, double y, double z, int i){
 	//inTotest‚Å‚Í-1-1-1‚Ü‚Å‚¢‚ê‚é‚Ì‚ÅA+1+1+1‚µ‚Ä‚¨‚­
 	//printf("into %d %d %d\n", x_i+1, y_i+1, z_i+1);
 	inTotest(x_i+1, y_i+1, z_i+1, test_x, test_y, test_z);
-
 	switch(i){
 	case 1:
 		return interpolate(x_d, y_d, z_d, test_x);
@@ -281,7 +280,7 @@ void display()
   //}Œ`‚Ì•`‰æ 
   glColor3d(0.0, 0.0, 0.0);
 
-  cout << "diso" << endl;
+  //cout << "diso" << endl;
   //int sx = 110, sy=55, sz=30;
   
   /*
@@ -303,69 +302,69 @@ void display()
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
   glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
   glBegin(GL_LINES);
   glVertex3f(-(double)sizeX/2.0,0,0);
   glVertex3f((double)sizeX/2.0,0,0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(0,-(double)sizeY/2.0,0);
   glVertex3f(0,(double)sizeY/2.0,0);
-  glEnd;
+  glEnd();
   glBegin(GL_LINES);
   glVertex3f(0,0,-(double)sizeZ/2.0);
   glVertex3f(0,0,(double)sizeZ/2.0);
-  glEnd;
+  glEnd();
 
 
-  for(int i=0; i < 2; i++){
+  for(int i=0; i < 4; i++){
 	  cp_disp.x = cp[i].x - (double)sizeX/2;	cp_disp.y = cp[i].y - (double)sizeY/2;	cp_disp.z = cp[i].z - (double)sizeZ/2;
 	  for(int j=0; j< 3; j++){
 		  ya.x = e_vec[i][j].y*position.z - e_vec[i][j].z*position.y;	
@@ -427,37 +426,71 @@ void display()
 
 	//ˆÈ‰º—¬ü•`‰æ
 	
-	/*
-	double step = 0.1;
+	
+	double step;// = -0.1;
 	double dx1, dy1, dz1;
 	double dx2, dy2, dz2;
+	double d_size;
+
+	const double first_len = 0.5;
+	const double len = 0.1;
+
 	//double tmp;
 
 	//printf("%f\n", cp[0].x);
 	//printf("d-series = %f %f %f\n", dx1, dy1, dz1);
 	//streamline
 
-	for(int s = 0; s<5; s++){
-		dx1=cp[s].x; dy1=cp[s].y; dz1=cp[s].z;
-		glColor3d(0.0, 0.0, 1.0);
-		//for(int i=0; i<4500; i++){
-		while(true){
-			if(dx1 > sizeX-5 || dx1 < 5 || dy1 > sizeY-5 || dy1 < 5 || dz1 > sizeZ-5 || dz1 < 5 ) break;
-			//printf("%d %d %d\n", dx1, dy1, dz1);
-			dx2 = runge_kutta(dx1, dy1, dz1, 1, step);
-			dy2 = runge_kutta(dx1, dy1, dz1, 2, step);
-			dz2 = runge_kutta(dx1, dy1, dz1, 3, step);
+	glColor3d(0.0, 1.0, 0.0);
+	for(int t=0; t<4; t++){
+		if(t == 2){
+			step = 0.1;
+		}else{
+			step = -0.1;
+		}
+		for(int s = 0; s<round_num-1; s++){
+			dx1 = cp[t].x + round_cp[t][s].x*(first_len);	dy1 = cp[t].y + round_cp[t][s].y*(first_len);	dz1 = cp[t].z + round_cp[t][s].z*(first_len);
 
-			glBegin(GL_LINES);
-			glVertex3f(dx1-(double)sizeX/2.0, dy1-(double)sizeY/2.0, dz1-(double)sizeZ/2.0);
-			glVertex3f((dx1-(double)sizeX/2.0)+dx2, (dy1-(double)sizeY/2.0)+dy2, (dz1-(double)sizeZ/2.0)+dz2);
-			glEnd();
+			while(true){
+				if(dx1 > sizeX-5 || dx1 < 5 || dy1 > sizeY-5 || dy1 < 5 || dz1 > sizeZ-5 || dz1 < 5 ) break;
+				//printf("%d %d %d\n", dx1, dy1, dz1);
+				dx2 = runge_kutta(dx1, dy1, dz1, 1, step);
+				dy2 = runge_kutta(dx1, dy1, dz1, 2, step);
+				dz2 = runge_kutta(dx1, dy1, dz1, 3, step);
 
-			//printf("d1 = %f, %f, %f\n", dx1, dy1, dz1);
-			dx1 += dx2;	dy1 += dy2;	dz1 += dz2;
+				d_size = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
+				
+				dx2 = (dx2/d_size)*len;
+				dy2 = (dy2/d_size)*len;
+				dz2 = (dz2/d_size)*len;
+
+				//printf("two\n");
+
+				glBegin(GL_LINES);
+				glVertex3f(dx1-(double)sizeX/2.0, dy1-(double)sizeY/2.0, dz1-(double)sizeZ/2.0);
+				glVertex3f((dx1-(double)sizeX/2.0)+dx2, (dy1-(double)sizeY/2.0)+dy2, (dz1-(double)sizeZ/2.0)+dz2);
+				glEnd();
+
+				//printf("d1 = %f, %f, %f\n", dx1, dy1, dz1);
+				dx1 += dx2;	dy1 += dy2;	dz1 += dz2;
+			}
 		}
 	}
-	*/
+
+	/*
+	for(int i=0; i<4; i++){
+		for(int j=0; j<3; j++){
+			if(i == 2){
+				if(e_val[i][j] < 0){
+					step = 0.1;
+				}
+			}else{
+				if(e_val[i][j] > 0){
+					step = -0.1;
+				}
+		}
+	}
+	}*/
 
 	glFlush();
 }
@@ -696,26 +729,26 @@ int main(int argc, char *argv[])
 	Vector3i a = Vector3i()+s;
 
 	cout << size << endl;
-	//readText();
+	readText();
 
 	read_cp();
 	
 	read_eigen();
 
+	system("pause");
 	
-	for(int i=0; i < 2; i++){
+	/*
+	for(int k=0; k<4; k++){
+		make_round(e_val, e_vec, k);
+	}*/
+
+	system("pause");
+	
+	
+	for(int i=0; i < 4; i++){
 		read_round(i);
 	}
 	
-
-	system("pause");
-	/*
-	for(int k=0; k<2; k++){
-		make_round(e_val, e_vec, k);
-	}
-
-	system("pause");
-	*/
 
 	
 	//streamline •`‰æ
