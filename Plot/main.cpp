@@ -474,64 +474,9 @@ void display()
 	glFlush();
 }
 
-int width, height;
-
-void changePosition()
-{
-	glViewport(0, 0, width, height);
-
-	glLoadIdentity();
-	//glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-
-	gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-	gluLookAt(position.x, position.y, position.z,
-		eyeLook.x,  eyeLook.y, eyeLook.z, 
-		0.0, 1.0, 0.0);
-
-	glutPostRedisplay();
-}
-
-void look()
-{
-	/*
-  glViewport(0, 0, width, height);
-
-  glLoadIdentity();
-	  //glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-  cout << "look" << endl;
-  gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-  */
-	
-  position.x = radius * cos(phi) * cos(theta) + eyeLook.x;
-  position.y = radius * sin(phi) + eyeLook.y;
-  position.z = radius * cos(phi) * sin(theta) + eyeLook.z;
-  
-  changePosition();
-}
-
-void resize(int w, int h)
-{
-	Camera::getCamera()->SetWindowSize(w,h);
-}
-
 void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-}
-
-void push(int button, int state, int x, int y)
-{
-	CameraManager::MousePress(button, state, x, y);
-}
-
-void mouse(int x, int y)
-{
-	CameraManager::MouseMove(x,y);
-}
-
-void keyboard(unsigned char key, int x, int y)
-{
-	CameraManager::Keyboard(key, x, y);
 }
 
 void toVector(float *data)
@@ -643,13 +588,12 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 
 int main(int argc, char *argv[])
 {
+	/*
 	vector<Jacobian> jacobians;
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
-	{
 		cout << (*it) << endl;
-	}
-
+		*/
 	cout << size << endl;
 	readText();
 
@@ -683,12 +627,11 @@ int main(int argc, char *argv[])
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	//3d
-	glutReshapeFunc(resize);
+	glutReshapeFunc(CameraManager::Resize);
 	//3d
-	glutKeyboardFunc(keyboard);
-
-	glutMouseFunc(push);
-	glutMotionFunc(mouse);
+	glutKeyboardFunc(CameraManager::Keyboard);
+	glutMouseFunc(CameraManager::MousePress);
+	glutMotionFunc(CameraManager::MouseMove);
 	init();
 	glutMainLoop();
 	

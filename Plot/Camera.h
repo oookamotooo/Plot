@@ -37,7 +37,7 @@ public:
 	static void Keyboard(unsigned char key, int x, int y);
 	static void MouseMove(int x, int y);
 	static void MousePress(int button, int state, int x, int y);
-
+	static void Resize(int w, int y);
 private:
 	static int lastX, lastY;
 	static const unsigned char upKey = 'w', downKey = 's', leftKey = 'a', rightKey='d'; 

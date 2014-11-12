@@ -10,6 +10,7 @@ class Jacobian
 public :
 	std::complex<double> eigenValue[3];
 	Vector3< std::complex<double> >eigenVector[3];
+
 	Jacobian( std::complex<double> _eigenValue[3], Vector3<std::complex<double>> _eigenVector[3])
 	{
 		for(int i=0; i<3; i++)

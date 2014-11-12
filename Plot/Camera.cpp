@@ -119,3 +119,8 @@ void CameraManager::MousePress(int button, int state, int x, int y)
 		lastY = y;
 	}
 }
+
+void CameraManager::Resize(int w, int h)
+{
+	Camera::getCamera()->SetWindowSize(w,h);
+}
