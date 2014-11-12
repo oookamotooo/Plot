@@ -11,7 +11,7 @@ const int sizeY = 171;
 const int sizeZ = 86;
 const int Size = sizeX * sizeY * sizeZ;
 //const double alpha = 30.0;
-const int round_num = 13; //(int)(360.0/alpha);
+const int round_num = 20; //(int)(360.0/alpha);
 
 extern vector<Vector3d> datas;
 extern double s, t, u;
