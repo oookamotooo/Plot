@@ -8,18 +8,15 @@
 class Jacobian
 {
 public :
-	std::complex<double> eigenValue[3];
-	Vector3< std::complex<double> >eigenVector[3];
+	std::complex<double> eigenValue[3];				//3つの固有値
+	Vector3< std::complex<double> >eigenVector[3];	//3つの固有ベクトル
 
-	Jacobian( std::complex<double> _eigenValue[3], Vector3<std::complex<double>> _eigenVector[3])
-	{
-		for(int i=0; i<3; i++)
-		{
-			eigenValue[i]  = _eigenValue[i];
-			eigenVector[i] = _eigenVector[i]; 
-		}
-	}
+	Jacobian( std::complex<double> _eigenValue[3], Vector3<std::complex<double>> _eigenVector[3]);
 	Jacobian(){}
+
+	//ﾃﾞﾊﾞｯｸﾞ用
+	// cout << jacobian型の変数 << endl;
+	// で固有値,固有ベクトルを表示できる.
 	friend std::ostream& operator<<(std::ostream& stream, const Jacobian &obj);
 };
 
