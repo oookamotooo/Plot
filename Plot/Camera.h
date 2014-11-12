@@ -1,3 +1,6 @@
+#ifndef _CAMERA_H_
+#define _CAMERA_H_
+
 #include "Vector3.h"
 
 class Camera
@@ -40,3 +43,5 @@ private:
 	static const unsigned char upKey = 'w', downKey = 's', leftKey = 'a', rightKey='d'; 
 	static const unsigned char zoomInKey = 'q', zoomOutKey = 'e';
 };
+
+#endif

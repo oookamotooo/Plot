@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <gl/glut.h>
-
+#include "FileManager.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Vector3.h"
@@ -639,7 +639,13 @@ int main(int argc, char *argv[])
 {
 	Vector3i s;
 	Vector3i a = Vector3i()+s;
-
+	vector<Jacobian> jacobians;
+	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
+	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
+	{
+		cout << (*it) << endl;
+	}
+//	jacobians[0].eigenValue[0];
 	cout << size << endl;
 	readText();
 
@@ -647,6 +653,7 @@ int main(int argc, char *argv[])
 	
 	read_eigen();
 
+	
 	system("pause");
 	
 	/*
