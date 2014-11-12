@@ -366,6 +366,11 @@ void display()
 			  glEnd();
 		  }
 		  
+		  glBegin(GL_LINE_LOOP);
+		  glVertex3f(cp_disp.x, cp_disp.y, cp_disp.z);
+		  glVertex3f(cp_disp.x + round_cp[i][round_num-1].x, cp_disp.y + round_cp[i][round_num-1].y, cp_disp.z + round_cp[i][round_num-1].z);
+		  glVertex3f(cp_disp.x + round_cp[i][0].x, cp_disp.y + round_cp[i][0].y, cp_disp.z + round_cp[i][0].z);
+		  glEnd();
   }
 
   /*
@@ -399,6 +404,7 @@ void display()
 
 	//à»â∫ó¨ê¸ï`âÊ
 	
+  //printf("Ryu\n");
 	
 	double step;// = -0.1;
 	double dx1, dy1, dz1;
@@ -577,7 +583,7 @@ Vector3d rotate(Vector3d housen, Vector3d vec, double alpha){
 void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 	int a, b;
 	double h_size;
-	double alpha = 30.0;
+	double alpha = 360.0/round_num;
 	Vector3d housen, rotated;
 
 	FILE *fp;
@@ -637,15 +643,13 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 
 int main(int argc, char *argv[])
 {
-	Vector3i s;
-	Vector3i a = Vector3i()+s;
 	vector<Jacobian> jacobians;
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
 	{
 		cout << (*it) << endl;
 	}
-//	jacobians[0].eigenValue[0];
+
 	cout << size << endl;
 	readText();
 
@@ -653,13 +657,11 @@ int main(int argc, char *argv[])
 	
 	read_eigen();
 
-	
 	system("pause");
-	
-	/*
+
 	for(int k=0; k<4; k++){
 		make_round(e_val, e_vec, k);
-	}*/
+	}
 
 	system("pause");
 	
@@ -690,5 +692,6 @@ int main(int argc, char *argv[])
 	init();
 	glutMainLoop();
 	
+
 	return 0;
 }
