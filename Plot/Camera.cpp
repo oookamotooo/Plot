@@ -1,4 +1,4 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
 #include <gl/glut.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -8,7 +8,7 @@ using namespace std;
 Camera::Camera()
 	:theta(0), phi(0), fov(90), radius(20), up(0,1,0), frustumNear(1.0), frustumFar(500.0)
 {
-	calcPosition();	//‰ŠúˆÊ’u‚Ìİ’è
+	calcPosition();	//åˆæœŸä½ç½®ã®è¨­å®š
 }
 
 void Camera::calcPosition()

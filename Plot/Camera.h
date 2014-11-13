@@ -1,4 +1,4 @@
-#ifndef _CAMERA_H_
+ï»¿#ifndef _CAMERA_H_
 #define _CAMERA_H_
 
 #include "Vector3.h"
@@ -14,21 +14,21 @@ public:
 	}
 
 	void SetWindowSize(const int &width, const int &height);
-	void Move(float x, float y);			//•½sˆÚ“®
-	void Rotate(float theta, float phi);	//‰ñ“]
-	void Zoom(float delta);					//ƒY[ƒ€
+	void Move(float x, float y);			//å¹³è¡Œç§»å‹•
+	void Rotate(float theta, float phi);	//å›è»¢
+	void Zoom(float delta);					//ã‚ºãƒ¼ãƒ 
 	void SetViewportAndMatrix() const;
 private:
 	Vector3d up;
-	float theta, phi, radius;	//ƒÆ, ƒÓ, ”¼Œa
-	float fov;	//‹–ìŠp
-	float frustumNear, frustumFar;	//ƒNƒŠƒbƒsƒ“ƒOˆÊ’u(near, far•½–Ê)
+	float theta, phi, radius;	//Î¸, Ï†, åŠå¾„
+	float fov;	//è¦–é‡è§’
+	float frustumNear, frustumFar;	//ã‚¯ãƒªãƒƒãƒ”ãƒ³ã‚°ä½ç½®(near, farå¹³é¢)
 	int width, height;
 	Camera();
 
 	Camera(const Camera &other);
 
-	void calcPosition();	//ˆÊ’uXV
+	void calcPosition();	//ä½ç½®æ›´æ–°
 };
 
 class CameraManager

@@ -1,22 +1,22 @@
-#ifndef _JACOBIAN_H_
+ï»¿#ifndef _JACOBIAN_H_
 #define _JACOBIAN_H_
 #include <complex>
 #include <iostream>
 #include "Vector3.h"
 
-//ƒ„ƒRƒrƒAƒ“‚Ìî•ñ‚ğŠi”[‚·‚éƒNƒ‰ƒX.
+//ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã®æƒ…å ±ã‚’æ ¼ç´ã™ã‚‹ã‚¯ãƒ©ã‚¹.
 class Jacobian
 {
 public :
-	std::complex<double> eigenValue[3];				//3‚Â‚ÌŒÅ—L’l
-	Vector3< std::complex<double> >eigenVector[3];	//3‚Â‚ÌŒÅ—LƒxƒNƒgƒ‹
+	std::complex<double> eigenValue[3];				//3ã¤ã®å›ºæœ‰å€¤
+	Vector3< std::complex<double> >eigenVector[3];	//3ã¤ã®å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«
 
 	Jacobian( std::complex<double> _eigenValue[3], Vector3<std::complex<double>> _eigenVector[3]);
 	Jacobian(){}
 
-	//ÃŞÊŞ¯¸Ş—p
-	// cout << jacobianŒ^‚Ì•Ï” << endl;
-	// ‚ÅŒÅ—L’l,ŒÅ—LƒxƒNƒgƒ‹‚ğ•\¦‚Å‚«‚é.
+	//ï¾ƒï¾ï¾Šï¾ï½¯ï½¸ï¾ç”¨
+	// cout << jacobianå‹ã®å¤‰æ•° << endl;
+	// ã§å›ºæœ‰å€¤,å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¡¨ç¤ºã§ãã‚‹.
 	friend std::ostream& operator<<(std::ostream& stream, const Jacobian &obj);
 };
 
