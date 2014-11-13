@@ -1,14 +1,15 @@
-
+ï»¿
 #include<iostream>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <gl/glut.h>
-
+#include "FileManager.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Vector3.h"
 #include "define.h"
+#include "Camera.h"
 
 //#define round_point 12
 #define PI  3.14159265358979323846
@@ -22,34 +23,6 @@ Vector3d cp[CP_NUM];
 double e_val[CP_NUM][3];
 Vector3d e_vec[CP_NUM][3];
 Vector3d round_cp[CP_NUM][round_num];
-
-class Camera
-{
-public:
-	Vector3d position, look, up;
-	float theta, phi, radius;
-	Camera()
-	{
-		theta = 0;
-		phi = 0;
-		position = Vector3d(0,0,1);
-		look = Vector3d();
-		up = Vector3d(0,1,0);
-	}
-
-	void RotateTheta(float deg)
-	{
-
-	}
-
-	void RotatePhi(float deg)
-	{
-
-	}
-
-};
-
-Camera camera;
 
 double runge_kutta(double x, double y, double z, int i, double step);
 
@@ -86,7 +59,7 @@ void readText(){
 
 	FILE *fp = fopen("bfield_near_cusp.txt", "r");
 
-	//ˆÈ‰º—v‘‚«Š·‚¦?
+	//ä»¥ä¸‹è¦æ›¸ãæ›ãˆ?
 	
 	for(int k=0;k<sizeZ;k++){
 		for(int j=0;j<sizeY;j++){
@@ -186,7 +159,7 @@ void inTotest(int i, int j, int k, double test_x[8], double test_y[8], double te
 	return;
 }
 
-//----------------------------‚±‚Á‚©‚ç‰‹}ˆ’uƒ][ƒ“------------------------------
+//----------------------------ã“ã£ã‹ã‚‰å¿œæ€¥å‡¦ç½®ã‚¾ãƒ¼ãƒ³------------------------------
 //double is, it, iu;
 
 double interpolate(double is,double it,double iu, double test[8])
@@ -197,8 +170,8 @@ double interpolate(double is,double it,double iu, double test[8])
 	+(1-iu)*is*it*test[2];
 }
 
-//’Pƒ‚Éˆø”‚Æ‚µ‚ÄÀ•W(¬”“_ŠÜ‚ß)‚ğ—^‚¦‚éŒ`‚É‚µ‚½‚Ù‚¤‚ª”½•œˆ—‚Ì‚Æ‚«Šy
-//—^‚¦‚ç‚ê‚½À•W‚©‚çƒ^ƒCƒ€ƒXƒeƒbƒvŒã‚ÌÀ•W‚ğ•Ô‚·ŠÖ”
+//å˜ç´”ã«å¼•æ•°ã¨ã—ã¦åº§æ¨™(å°æ•°ç‚¹å«ã‚)ã‚’ä¸ãˆã‚‹å½¢ã«ã—ãŸã»ã†ãŒåå¾©å‡¦ç†ã®ã¨ãæ¥½
+//ä¸ãˆã‚‰ã‚ŒãŸåº§æ¨™ã‹ã‚‰ã‚¿ã‚¤ãƒ ã‚¹ãƒ†ãƒƒãƒ—å¾Œã®åº§æ¨™ã‚’è¿”ã™é–¢æ•°
 double streamline(double x, double y, double z, int i){
 
 	double test_x[8], test_y[8], test_z[8];
@@ -212,7 +185,7 @@ double streamline(double x, double y, double z, int i){
 	float x_d = x - x_i;
 	*/
 
-	//xyzÀ•W‚©‚çijk‚Ì’l‚Æstu‚Ì’l‚ğo‚·B
+	//xyzåº§æ¨™ã‹ã‚‰ijkã®å€¤ã¨stuã®å€¤ã‚’å‡ºã™ã€‚
 	
 	x_i = floor(x);
 	x_d = x - x_i;
@@ -226,13 +199,13 @@ double streamline(double x, double y, double z, int i){
 	y_d = modf(y, &y_i);
 	z_d = modf(z, &z_i);
 	*/
-	//‚»‚ê‚¼‚ê‚É‘Î‰‚·‚éüŒ`•âŠ®’l‚ğ•Ô
+	//ãã‚Œãã‚Œã«å¯¾å¿œã™ã‚‹ç·šå½¢è£œå®Œå€¤ã‚’è¿”
 
 	//printf("aaaaaaaaaaaaaaaaa\n");
 	//printf("%d %d %d, %f %f %f\n", x_i, y_i, z_i, x_d, y_d, z_d);
 	//if(x_i+1 > sizeX || y_i+1 > sizeY || z_i+1 > sizeZ) return 0;
 	//for(int i=0; i < 1; i++){
-	//inTotest‚Å‚Í-1-1-1‚Ü‚Å‚¢‚ê‚é‚Ì‚ÅA+1+1+1‚µ‚Ä‚¨‚­
+	//inTotestã§ã¯-1-1-1ã¾ã§ã„ã‚Œã‚‹ã®ã§ã€+1+1+1ã—ã¦ãŠã
 	//printf("into %d %d %d\n", x_i+1, y_i+1, z_i+1);
 	inTotest(x_i+1, y_i+1, z_i+1, test_x, test_y, test_z);
 	switch(i){
@@ -266,10 +239,11 @@ double runge_kutta(double x, double y, double z, int i, double step){
 
 }
 
-//-------------------------------‚±‚±‚Ü‚Å‰‹}ˆ’uƒ][ƒ“---------------------------
+//-------------------------------ã“ã“ã¾ã§å¿œæ€¥å‡¦ç½®ã‚¾ãƒ¼ãƒ³---------------------------
 
 void display()
 {
+	Camera::getCamera()->SetViewportAndMatrix();
   Vector3d plot;	
   Vector3d cp_disp;
   Vector3d ya;
@@ -277,10 +251,9 @@ void display()
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  //}Œ`‚Ì•`‰æ 
+  //å›³å½¢ã®æç”» 
   glColor3d(0.0, 0.0, 0.0);
 
-  //cout << "diso" << endl;
   //int sx = 110, sy=55, sz=30;
   
   /*
@@ -372,7 +345,7 @@ void display()
 		  ya.z = e_vec[i][j].x*position.y - e_vec[i][j].y*position.x;
 		  ya_size = sqrt(ya.x*ya.x + ya.y*ya.y + ya.z*ya.z);
 		  
-		  //ŒÅ—LƒxƒNƒgƒ‹•`‰æ
+		  //å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«æç”»
 		  glColor3d(1.0, 0.0, 0.0);
 		  glBegin(GL_LINE_STRIP);
 		  glVertex3f(cp_disp.x, cp_disp.y, cp_disp.z);
@@ -383,7 +356,7 @@ void display()
 		  glEnd();
 	  }
 	  
-	  //ƒ°–Ê•`‰æ
+	  //Î£é¢æç”»
 		  glColor3d(0.0, 0.0, 1.0);
 		  for(int k=0; k<round_num-1; k++){
 			  glBegin(GL_LINE_LOOP);
@@ -401,7 +374,7 @@ void display()
   }
 
   /*
-	//\š“ÁˆÙ“_•`‰æ
+	//åå­—ç‰¹ç•°ç‚¹æç”»
   
 	glColor3d(1.0, 0.0, 0.0);
 	for(int i=0; i<CP_NUM; i++){
@@ -429,7 +402,7 @@ void display()
 	}
 	*/
 
-	//ˆÈ‰º—¬ü•`‰æ
+	//ä»¥ä¸‹æµç·šæç”»
 	
   //printf("Ryu\n");
 	
@@ -501,125 +474,9 @@ void display()
 	glFlush();
 }
 
-int width, height;
-
-void changePosition()
-{
-	glViewport(0, 0, width, height);
-
-	glLoadIdentity();
-	//glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-
-	gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-	gluLookAt(position.x, position.y, position.z,
-		eyeLook.x,  eyeLook.y, eyeLook.z, 
-		0.0, 1.0, 0.0);
-
-	glutPostRedisplay();
-}
-
-void look()
-{
-	/*
-  glViewport(0, 0, width, height);
-
-  glLoadIdentity();
-	  //glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-  cout << "look" << endl;
-  gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-  */
-	
-  position.x = radius * cos(phi) * cos(theta) + eyeLook.x;
-  position.y = radius * sin(phi) + eyeLook.y;
-  position.z = radius * cos(phi) * sin(theta) + eyeLook.z;
-  
-  changePosition();
-}
-
-
-
-void resize(int w, int h)
-{
-	width = w;
-	height = h;
-
-  look();
-}
-
 void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-}
-
-int lastX, lastY;
-
-void push(int button, int state, int x, int y)
-{
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		lastX = x; lastY = y;
-	}
-}
-
-void mouse(int x, int y)
-{
-	//cout << x << "," << y << "," << lastX << "," << lastY << endl;
-	cout << "move" << endl;
-	float speed = 1.0;
-	float moveX = speed*(x - lastX);
-	float moveY = speed*(y - lastY);
-
-	cout <<moveX << "," << moveY << "," << x << "," << y <<endl; 
-	Vector3d up(0,1,0);
-	Vector3d dir = eyeLook - position;//(lx-px,ly-py,lz-pz);
-	Vector3d right = dir.cross(up);
-	Vector3d upper = right.cross(dir);
-	right.normalize();
-
-	upper.normalize();
-	right.mul(moveX);
-	upper.mul(moveY);
-	position += right - upper;
-	eyeLook  += right - upper; 
-	/*
-	cout << "right2" << right << endl;
-	cout << "up" << up << endl;
-	cout << "pos" << position << endl;
-	cout << "eye" << eyeLook << endl;
-	cout << "dir" << dir << endl;
-	*/
-	changePosition();
-	lastX = x;
-	lastY = y;
-}
-
-void keyboard(unsigned char key, int x, int y)
-{
-	cout << "keyborad" << endl;
-  switch (key) {
-  case 'w':
-    phi += 1.0 / 180.0 * M_PI;
-	break;
-  case 's':
-	  phi -= 1.0 / 180.0 * M_PI;
-	  break;
-  case 'a':
-	  theta += 1.0 / 180.0 * M_PI;
-	  break;
-  case 'd':
-	  theta -= 1.0 /180.0 *  M_PI;
-	  break;
-  case 'q':
-	  //fov+=1;
-	  radius += 1.0;
-	  break;
-  case 'e':
-	  radius = max(1.0, radius-1.0);
-	  break;
-  default:
-    break;
-  }
-  look();
 }
 
 void toVector(float *data)
@@ -684,9 +541,9 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 	/*
 	FILE *fp = fopen("round_point.txt", "w");
 	*/
-	//“¯•„†ƒxƒNƒgƒ‹’T‚·
+	//åŒç¬¦å·ãƒ™ã‚¯ãƒˆãƒ«æ¢ã™
 
-	//¡‚Í‚·‚×‚Ä‚ª++-or--+‚È‚Ì‚Å‚±‚ê‚Å‚¢‚¢‚ªA«—ˆ“I‚É‚·‚×‚Ä“¯•„†ƒpƒ^[ƒ“‚ª¶‚Ü‚ê‚½ê‡‚Í‘‚«’¼‚·
+	//ä»Šã¯ã™ã¹ã¦ãŒ++-or--+ãªã®ã§ã“ã‚Œã§ã„ã„ãŒã€å°†æ¥çš„ã«ã™ã¹ã¦åŒç¬¦å·ãƒ‘ã‚¿ãƒ¼ãƒ³ãŒç”Ÿã¾ã‚ŒãŸå ´åˆã¯æ›¸ãç›´ã™
 
 	for(int i=0; i<3; i++){
 		a = i;
@@ -702,7 +559,7 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 		}
 	}
 
-	//–@üƒxƒNƒgƒ‹‹‚ß‚é
+	//æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«æ±‚ã‚ã‚‹
 	housen.x = (sub_vec[n][a].y*sub_vec[n][b].z - sub_vec[n][a].z*sub_vec[n][b].y);
 	housen.y = (sub_vec[n][a].z*sub_vec[n][b].x - sub_vec[n][a].x*sub_vec[n][b].z);
 	housen.z = (sub_vec[n][a].x*sub_vec[n][b].y - sub_vec[n][a].y*sub_vec[n][b].x);
@@ -714,7 +571,7 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 	housen.z = (housen.z/h_size);
 
 	printf("unit vector make %lf %lf %lf -> %lf\n", housen.x, housen.y, housen.z, sqrt(housen.x*housen.x + housen.y*housen.y + housen.z*housen.z));
-	//–@üƒxƒNƒgƒ‹‚ğ²‚É‰ñ“]s—ñ‚©‚¯‚é
+	//æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã‚’è»¸ã«å›è»¢è¡Œåˆ—ã‹ã‘ã‚‹
 	rotated.x = sub_vec[n][a].x;	rotated.y = sub_vec[n][a].y;	rotated.z = sub_vec[n][a].z;
 	fprintf(fp, "%lf %lf %lf\n", rotated.x, rotated.y, rotated.z);
 
@@ -731,11 +588,12 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 
 int main(int argc, char *argv[])
 {
-	//------------test space---------------
-	double n;
-	Vector3d a, b, c;
-	//Vector3i a = Vector3i()+s;
-
+	/*
+	vector<Jacobian> jacobians;
+	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
+	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
+		cout << (*it) << endl;
+		*/
 	cout << size << endl;
 	readText();
 
@@ -743,19 +601,8 @@ int main(int argc, char *argv[])
 	
 	read_eigen();
 
-	a = Vector3d();	b = Vector3d(1,1,0);	c = Vector3d(0,1,1);
-
-	printf("%lf %lf %lf , %lf %lf %lf , %lf %lf %lf\n", a, b, c);
-
 	system("pause");
 
-	n = b.dot(c);
-	printf("n = %lf\n", n);
-	//printf("%lf %lf %lf , %lf %lf %lf , %lf %lf %lf\n", a, b, c);
-
-
-	//-------------testspace--------------------------
-	
 	for(int k=0; k<4; k++){
 		make_round(e_val, e_vec, k);
 	}
@@ -769,7 +616,7 @@ int main(int argc, char *argv[])
 	
 
 	
-	//streamline •`‰æ
+	//streamline æç”»
 	
 	glutInitWindowSize(600, 600);
 	glutInit(&argc, argv);
@@ -780,12 +627,11 @@ int main(int argc, char *argv[])
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	//3d
-	glutReshapeFunc(resize);
+	glutReshapeFunc(CameraManager::Resize);
 	//3d
-	glutKeyboardFunc(keyboard);
-
-	glutMouseFunc(push);
-	glutMotionFunc(mouse);
+	glutKeyboardFunc(CameraManager::Keyboard);
+	glutMouseFunc(CameraManager::MousePress);
+	glutMotionFunc(CameraManager::MouseMove);
 	init();
 	glutMainLoop();
 	
