@@ -1,3 +1,5 @@
+#ifndef _MY__DEFINE_H_
+#define _MY__DEFINE_H_
 #include <iostream>
 #include <vector>
 #include "Vector3.h"
@@ -23,3 +25,5 @@ extern double e_val[CP_NUM][3];
 extern Vector3d e_vec[CP_NUM][3];
 
 extern Vector3d round_cp[CP_NUM][round_num];
+
+#endif

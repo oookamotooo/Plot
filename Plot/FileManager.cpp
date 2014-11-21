@@ -4,45 +4,51 @@
 #include "Vector3.h"
 using namespace std;
 
+namespace 
+{
+	bool ReadLine(ifstream &stream, complex<double> res[3])
+	{
+		for(int i=0; i<3; i++)
+		{
+			double re, im;
+			stream >> re >> im;
+			res[i] = complex<double>(re,im);
+			if( stream.eof() )
+				return false;
+		}
+
+		return true;
+	}
+}
+	
 bool FileManager::readJacobian(std::ifstream &stream, Jacobian &res)
 {
 	complex<double> eigen[3];
-	for(int i=0; i<3; i++)
-	{
-		double re, im;
-		stream >> re >> im;
-		eigen[i] = complex<double>(re,im);
-		if( stream.eof() )
-			return false;
-	}
+
+	//固有値を読み込む
+	if ( !ReadLine(stream, eigen) )
+		return false;
 
 	Vector3<complex<double>> vec[3];
+	complex<double> buf[3];
+
+	//1行読み込んで,それぞれのx成分に代入
+	if( !ReadLine(stream, buf) )
+		return false;
 	for(int i=0; i<3; i++)
-	{
-		double re, im;
-		stream >> re >> im;
-		vec[i].x = complex<double>(re,im);
-		if( stream.eof() )
-			return false;
-	}
-	
+		vec[i].x = buf[i];
+
+	//1行読み込んで,それぞれのy成分に代入
+	if( !ReadLine(stream, buf) )
+		return false;
 	for(int i=0; i<3; i++)
-	{
-		double re, im;
-		stream >> re >> im;
-		vec[i].y = complex<double>(re,im);
-		if( stream.eof() )
-			return false;
-	}
-	
+		vec[i].y = buf[i];
+
+	//1行読み込んで,それぞれのz成分に代入
+	if( !ReadLine(stream, buf) )
+		return false;
 	for(int i=0; i<3; i++)
-	{
-		double re, im;
-		stream >> re >> im;
-		vec[i].z = complex<double>(re,im);
-		if( stream.eof() )
-			return false;
-	}
+		vec[i].z = buf[i];
 
 	res = Jacobian(eigen, vec);
 	return true;

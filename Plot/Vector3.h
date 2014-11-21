@@ -9,8 +9,8 @@ template<class T>
 class Vector3
 {
 public:
-	static const float TO_RADIANS;// = (1.0f/180.f)*M_PI;
-	static const float TO_DEGREE;//  = 180.0f/M_PI;
+//	static const float TO_RADIANS;// = (1.0f/180.f)*M_PI;
+//	static const float TO_DEGREE;//  = 180.0f/M_PI;
 	T x, y, z;
 
 	Vector3<T>()
@@ -171,6 +171,13 @@ public:
 			this->x*other.y - this->y*other.x);
 	}
 
+	/*
+	// axisを軸に, rad(ラジアン)だけ回転させる
+	template<typename T>
+	void rotate( Vector3<T> vec, float rad)
+	{
+	}
+	*/
 	//ラジアンで返る
 	double angleTo(const Vector3<T> &other) const
 	{

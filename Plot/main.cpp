@@ -10,6 +10,7 @@
 #include "Vector3.h"
 #include "define.h"
 #include "Camera.h"
+#include "GraphicManager.h"
 
 //#define round_point 12
 #define PI  3.14159265358979323846
@@ -41,10 +42,7 @@ bool samesign_check(double a, double b){
 	}
 }
 
-float phi = 0, theta = 0, fov = 90, radius = 20;
-//float px, py, pz;
-//float lx,ly,lz;
-Vector3d position(0,0,20), eyeLook;
+Vector3d position(0,0,20);
 void normalize()
 {
 	for(int i=0; i<Size; i++)
@@ -254,87 +252,7 @@ void display()
   //}Œ`‚Ì•`‰æ 
   glColor3d(0.0, 0.0, 0.0);
 
-  //int sx = 110, sy=55, sz=30;
-  
-  /*
-  for(int k = z_start; k < z_start + sizeZ; k++)
-	  for(int j = y_start; j < y_start + sizeY; j++)
-		  for(int i = x_start; i < x_start + sizeX; i++){
-			  //if(k%10 == 0){
-				int index = Index(i, j, k);
-				float x = i - (double)sizeX/2;
-				float y = j - (double)sizeY/2;
-				float z = k - (double)sizeZ/2;
-				glBegin(GL_LINES);
-				glVertex3f(x, y, z);
-				glVertex3f(x+datas[index].x,y+datas[index].y, z+datas[index].z);
-				glEnd();
-			  //}
-			}*/
-
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd();
-
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,(double)sizeZ/2.0);
-  glEnd();
-
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glVertex3f((double)sizeX/2.0,-(double)sizeY/2.0,-(double)sizeZ/2.0);
-  glEnd();
-
-  glBegin(GL_LINES);
-  glVertex3f(-(double)sizeX/2.0,0,0);
-  glVertex3f((double)sizeX/2.0,0,0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(0,-(double)sizeY/2.0,0);
-  glVertex3f(0,(double)sizeY/2.0,0);
-  glEnd();
-  glBegin(GL_LINES);
-  glVertex3f(0,0,-(double)sizeZ/2.0);
-  glVertex3f(0,0,(double)sizeZ/2.0);
-  glEnd();
+  GraphicManager::GetGraphic()->DrawGrid();
 
 
   for(int i=0; i < 4; i++){
@@ -405,7 +323,8 @@ void display()
 	//ˆÈ‰º—¬ü•`‰æ
 	
   //printf("Ryu\n");
-	
+	/*
+	REN
 	double step;// = -0.1;
 	double dx1, dy1, dz1;
 	double dx2, dy2, dz2;
@@ -455,7 +374,7 @@ void display()
 			}
 		}
 	}
-
+	*/
 	/*
 	for(int i=0; i<4; i++){
 		for(int j=0; j<3; j++){
@@ -474,41 +393,6 @@ void display()
 	glFlush();
 }
 
-int width, height;
-
-void changePosition()
-{
-	glViewport(0, 0, width, height);
-
-	glLoadIdentity();
-	//glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-
-	gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-	gluLookAt(position.x, position.y, position.z,
-		eyeLook.x,  eyeLook.y, eyeLook.z, 
-		0.0, 1.0, 0.0);
-
-	glutPostRedisplay();
-}
-
-void look()
-{
-	/*
-  glViewport(0, 0, width, height);
-
-  glLoadIdentity();
-	  //glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-  cout << "look" << endl;
-  gluPerspective(fov, (double)width / (double)height, 1.0, 500.0);
-  */
-	
-  position.x = radius * cos(phi) * cos(theta) + eyeLook.x;
-  position.y = radius * sin(phi) + eyeLook.y;
-  position.z = radius * cos(phi) * sin(theta) + eyeLook.z;
-  
-  changePosition();
-}
-
 void resize(int w, int h)
 {
 	Camera::getCamera()->SetWindowSize(w,h);
@@ -519,20 +403,6 @@ void init(void)
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
-void push(int button, int state, int x, int y)
-{
-	CameraManager::MousePress(button, state, x, y);
-}
-
-void mouse(int x, int y)
-{
-	CameraManager::MouseMove(x,y);
-}
-
-void keyboard(unsigned char key, int x, int y)
-{
-	CameraManager::Keyboard(key, x, y);
-}
 
 void toVector(float *data)
 {
@@ -643,6 +513,7 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 
 int main(int argc, char *argv[])
 {
+	
 	vector<Jacobian> jacobians;
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
@@ -650,7 +521,6 @@ int main(int argc, char *argv[])
 		cout << (*it) << endl;
 	}
 
-	cout << size << endl;
 	readText();
 
 	read_cp();
@@ -662,33 +532,23 @@ int main(int argc, char *argv[])
 	for(int k=0; k<4; k++){
 		make_round(e_val, e_vec, k);
 	}
-
+	/*
 	system("pause");
 	
 	
 	for(int i=0; i < 4; i++){
 		read_round(i);
 	}
-	
-
-	
+	*/
 	//streamline •`‰æ
-	
-	glutInitWindowSize(600, 600);
-	glutInit(&argc, argv);
-	//glClearColor(0.0, 0.0, 1.0, 1.0);
-	//3d
-	glutInitDisplayMode(GLUT_RGBA);
-	//3d
-	glutCreateWindow(argv[0]);
+	GraphicManager::Initialize(600, 800, argc, argv);
+	GraphicManager::GetGraphic()->MakeGrid(Vector3d(), size, Vector3i(2,2,2)); 
 	glutDisplayFunc(display);
-	//3d
 	glutReshapeFunc(resize);
-	//3d
-	glutKeyboardFunc(keyboard);
+	glutKeyboardFunc(CameraManager::Keyboard);
 
-	glutMouseFunc(push);
-	glutMotionFunc(mouse);
+	glutMouseFunc(CameraManager::MousePress);
+	glutMotionFunc(CameraManager::MouseMove);
 	init();
 	glutMainLoop();
 	
