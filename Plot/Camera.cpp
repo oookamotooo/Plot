@@ -19,29 +19,35 @@ void Camera::calcPosition()
 	position.z = radius * cos(phi) * sin(theta) + look.z;
 }
 
-void Camera::Move(float x, float y)
+void Camera::Move(float x, float y, float z)
 {
-	Vector3d dir   = look - position;
-	Vector3d axisX = dir.cross(up).normalize();
-	Vector3d axisY = axisX.cross(dir).normalize();
+	Vector3d axisZ = (look - position).normalize();
+	Vector3d axisX = axisZ.cross(up).normalize();
+	Vector3d axisY = axisX.cross(axisZ).normalize();
 	axisX.mul(x);
 	axisY.mul(y);
-	position += axisX - axisY;
-	look     += axisX - axisY;
+	axisZ.mul(z);
+	position += axisX + axisY + axisZ;
+	look     += axisX + axisY ;	//z•ûŒü‚Ílook‚ÉŠÖŒW‚È‚¢(‰ñ“]‚Å‚Í‚ ‚é‚¯‚Ç)
+
+	radius += z;
 }
 
 void Camera::Rotate(float _theta, float _phi)
 {
 	theta += _theta;
-	phi   += _phi;
+	if (theta > 2*M_PI) theta -= 2*M_PI;
+	if (theta < 0) theta += 2*M_PI;
+
+	phi   = std::min( M_PI_2 - 0.0001f, std::max( -M_PI_2 + 0.0001f, 1.0*phi + _phi));
 	
 	calcPosition();
 }
 
-void Camera::Zoom(float _fov)
+void Camera::Zoom(float r)
 {
-	fov = std::max(0.0f, std::min(150.0f, fov+_fov));
-	cout << fov << endl;
+	radius = std::max(1.0f, std::min(150.0f, radius + r));
+	calcPosition();
 }
 
 void Camera::SetViewportAndMatrix() const
@@ -55,8 +61,6 @@ void Camera::SetViewportAndMatrix() const
 		position.x, position.y, position.z,
 		look.x,  look.y, look.z, 
 		up.x, up.y, up.z);
-
-	glutPostRedisplay();
 }
 
 void Camera::SetWindowSize(const int &_width, const int &_height)
@@ -71,7 +75,7 @@ void CameraManager::Keyboard(unsigned char key, int x, int y)
 {
 	float rotSpeed = 1.0;
 	int d_th=0, d_ph=0;
-	int d_fov = 0;
+	int d_zoom = 0;
   switch (key) {
   case upKey:
 	  d_ph += rotSpeed;
@@ -86,10 +90,10 @@ void CameraManager::Keyboard(unsigned char key, int x, int y)
 	  d_th -= rotSpeed;
 	  break;
   case zoomInKey:
-	  d_fov -= 1.0;
+	  d_zoom += 1.0;
 	  break;
   case zoomOutKey:
-	  d_fov += 1.0;
+	  d_zoom -= 1.0;
 	  break;
   default:
     break;
@@ -98,8 +102,8 @@ void CameraManager::Keyboard(unsigned char key, int x, int y)
   if( d_th | d_ph )
 	  Camera::getCamera()->Rotate(d_th * M_PI / 180.0, d_ph * M_PI / 180.0);
 
-  if( d_fov )
-	  Camera::getCamera()->Zoom(d_fov);
+  if (d_zoom)
+	  Camera::getCamera()->Zoom(d_zoom);
 }
 
 void CameraManager::MouseMove(int x, int y)
@@ -107,7 +111,7 @@ void CameraManager::MouseMove(int x, int y)
 	float speed = 0.1;
 	float moveX = speed*(x - lastX);
 	float moveY = speed*(y - lastY);
-	Camera::getCamera()->Move(moveX, moveY);
+	Camera::getCamera()->Move(moveX, -moveY, 0);
 	lastX = x;
 	lastY = y;
 }

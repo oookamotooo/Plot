@@ -13,7 +13,7 @@ public:
 	}
 
 	void SetWindowSize(const int &width, const int &height);
-	void Move(float x, float y);			//平行移動
+	void Move(float x, float y, float z);			//平行移動
 	void Rotate(float theta, float phi);	//回転
 	void Zoom(float delta);					//ズーム
 	void SetViewportAndMatrix() const;

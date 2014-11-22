@@ -1,9 +1,10 @@
-#include "Primitive.h"
+#include "SigmaPlane.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Camera.h"
+
 using namespace std;
 
 namespace
@@ -42,16 +43,16 @@ namespace
 }
 
 SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
-:jacobian(j), criticalPoint(cp)
+:jacobian(j), criticalPoint(cp), indexBuffer(0)
 {
 	bool found = false;
 	int a, b;
-	for(a=0; a<3; a++)
+	for (a = 0; a<3; a++)
 	{
-		b = (a+1)%3;
+		b = (a + 1) % 3;
 
 		//3つの固有ベクトルのうち, 実部が同符号のものを探す
-		if( jacobian.eigenValue[a].real() * jacobian.eigenValue[b].real() > 0 )
+		if (jacobian.eigenValue[a].real() * jacobian.eigenValue[b].real() > 0)
 		{
 			found = true;
 			break;
@@ -60,24 +61,34 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 
 	if (found)
 	{
+
 		//法線ベクトルを計算
 		Vector3< complex<double> > nor = jacobian.eigenVector[a].cross(jacobian.eigenVector[b]);
 
 		//複素ベクトルを実ベクトルへ変換
 		//ここでは暫定的に,虚部を切り捨てることにする.
 		normal = CompToReal(nor).normalize();
-		Vector3d rVec1  = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
+
+		//法線が0の場合平面ができない
+		if (normal.length() < 0.00000001)
+			return;
+
+		vertex.push_back(ToFloatVector(cp));	//クリティカルポイントを保存
+		//平面を作る固有ベクトルを法線を軸に回転させ,円を作る
+		Vector3d rVec1 = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
 		for (int i = 0; i < 12; i++)
 		{
-			Vector3d p = rotate(normal, rVec1, 360.0 * i / 12);
-			vertex.push_back( ToFloatVector(p + cp));
+			Vector3d p = rVec1.rotatedVector(normal, 360 * i / 12);// rotate(normal, rVec1, 360.0 * i / 12);
+			vertex.push_back(ToFloatVector(p + cp));
 		}
 
-
-		//bufferを生成
-		glGenBuffers(1, &buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertex.size() * sizeof(Vector3<float>)), reinterpret_cast<GLfloat*>(&vertex[0]), GL_STATIC_DRAW);
+		for (int i = 0; i < 12; i++)
+		{
+			indices.push_back(0);
+			indices.push_back(i + 1);
+			indices.push_back(i + 1);
+			indices.push_back( i == 11 ? 1 : i+2 );
+		}
 	}
 	else
 	{
@@ -90,7 +101,20 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 void SigmaPlane::Draw()
 {
 	if (vertex.size() == 0)
+	{
+		//cout << "return " << endl;
 		return;
+	}
+
+	Graphic::Draw();	//バインドしたかの確認
+
+	if ( indexBuffer == 0 )
+	{
+		//bufferを生成
+		glGenBuffers(1, &indexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLuint)(indices.size() * sizeof(unsigned int)), reinterpret_cast<GLfloat*>(&indices[0]), GL_STATIC_DRAW);
+	}
 
 	glPushAttrib(GL_COLOR);
 	glColor3d(1, 0, 0);
@@ -99,29 +123,30 @@ void SigmaPlane::Draw()
 	for (int i = 0; i < 3; i++)
 	{
 		//実空間に写像
-		auto ev        =  Radius * ToFloatVector( CompToReal(jacobian.eigenVector[i])).normalize();
-		auto nor       = ev.cross( ToFloatVector( Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
-		auto arrow1    = nor + 0.9*ev;
-		auto arrow2    = arrow1 - 2 * nor;
+		auto ev = Radius * ToFloatVector(CompToReal(jacobian.eigenVector[i])).normalize();
+		auto nor = ev.cross(ToFloatVector(Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
+		auto arrow1 = nor + 0.9*ev;
+		auto arrow2 = arrow1 - 2 * nor;
 		glBegin(GL_LINE_STRIP);
-		glVertex3d(criticalPoint.x           , criticalPoint.y           , criticalPoint.z);
-		glVertex3d(criticalPoint.x + ev.x    , criticalPoint.y + ev.y    , criticalPoint.z + ev.z);
+		glVertex3d(criticalPoint.x, criticalPoint.y, criticalPoint.z);
+		glVertex3d(criticalPoint.x + ev.x, criticalPoint.y + ev.y, criticalPoint.z + ev.z);
 		glVertex3d(criticalPoint.x + arrow1.x, criticalPoint.y + arrow1.y, criticalPoint.z + arrow1.z);
 		glVertex3d(criticalPoint.x + arrow2.x, criticalPoint.y + arrow2.y, criticalPoint.z + arrow2.z);
-		glVertex3d(criticalPoint.x + ev.x    , criticalPoint.y + ev.y    , criticalPoint.z + ev.z);
+		glVertex3d(criticalPoint.x + ev.x, criticalPoint.y + ev.y, criticalPoint.z + ev.z);
 		glEnd();
 	}
 
-	glColor3d(0, 0, 0);
+	glColor3d(0, 0, 1);
+	
 	//円を描画
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glVertexPointer(3, GL_FLOAT, sizeof(Vector3<float>), BUFFER_OFFSET(0));
 
-	glColor3d(0, 0, 0);
-	glDrawArrays(GL_LINE_LOOP, 0, vertex.size());
-
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+	
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	glPopAttrib();

@@ -85,7 +85,8 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Jacobian.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Primitive.cpp" />
+    <ClCompile Include="StreamLine.cpp" />
+    <ClCompile Include="SigmaPlane.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -94,7 +95,8 @@
     <ClInclude Include="GraphicManager.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Jacobian.h" />
-    <ClInclude Include="Primitive.h" />
+    <ClInclude Include="StreamLine.h" />
+    <ClInclude Include="SigmaPlane.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

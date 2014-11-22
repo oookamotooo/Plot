@@ -11,7 +11,9 @@
 #include "define.h"
 #include "Camera.h"
 #include "GraphicManager.h"
-#include "Primitive.h"
+#include "SigmaPlane.h"
+#include <Windows.h>
+
 //#define round_point 12
 #define PI  3.14159265358979323846
 
@@ -65,23 +67,10 @@ void readText(){
 		for(int j=0;j<sizeY;j++){
 			for(int i=0;i<sizeX;i++){
 				index = Index(i, j, k);
-
 				fscanf(fp,"%lf %lf %lf", &datas[index].x, &datas[index].y, &datas[index].z);
-				/*
-				fscanf(fp, "%lf",&datas[index].x);
-				fscanf(fp, "%lf",&datas[index].y);
-				fscanf(fp, "%lf",&datas[index].z);
-				*/
 			}
 		}
 	}
-	/*
-	for(int i=0;i<sizeX*sizeY*sizeZ;i++){
-		fscanf(fp,"%lf %lf %lf", &datas[i].x, &datas[i].y, &datas[i].z);
-	}
-	*/
-
-	//normalize();
 
 	fclose(fp);
 	return;
@@ -90,8 +79,8 @@ void readText(){
 void read_cp(){
 	FILE *fp = fopen("cp_sub.txt", "r");
 
-	for(int i=0; i < 4;/*CP_NUM;*/ i++){
-		fscanf(fp,"%lf %lf %lf", &cp[i].x, &cp[i].y, &cp[i].z);
+	for (int i = 0; i < 4;/*CP_NUM;*/ i++){
+		fscanf(fp, "%lf %lf %lf", &cp[i].x, &cp[i].y, &cp[i].z);
 	}
 
 	printf("Read CP success!");
@@ -103,9 +92,9 @@ void read_cp(){
 void read_eigen(){
 	FILE *fp = fopen("p_eigen_sub.txt", "r");
 
-	for(int i=0; i<4; i++){
+	for (int i = 0; i<4; i++){
 		fscanf(fp, "%lf %lf %lf", &e_val[i][0], &e_val[i][1], &e_val[i][2]);
-		
+
 		fscanf(fp, "%lf %lf %lf", &e_vec[i][0].x, &e_vec[i][1].x, &e_vec[i][2].x);
 		fscanf(fp, "%lf %lf %lf", &e_vec[i][0].y, &e_vec[i][1].y, &e_vec[i][2].y);
 		fscanf(fp, "%lf %lf %lf", &e_vec[i][0].z, &e_vec[i][1].z, &e_vec[i][2].z);
@@ -114,7 +103,6 @@ void read_eigen(){
 	fclose(fp);
 	return;
 }
-
 void read_round(int i){
 	char filepath[256];
 	sprintf(filepath, "round_point%d.txt", i);
@@ -164,7 +152,6 @@ void inTotest(int i, int j, int k, double test_x[8], double test_y[8], double te
 
 double interpolate(double is,double it,double iu, double test[8])
 {
-  //printf("inter\n");
   return iu*(1-is)*(1-it)*test[4]+iu*it*(1-is)*test[7]+iu*is*(1-it)*test[5]+iu*is*it*test[6]
 	+(1-iu)*(1-is)*(1-it)*test[0]+(1-iu)*(1-is)*it*test[3]+(1-iu)*is*(1-it)*test[1]
 	+(1-iu)*is*it*test[2];
@@ -256,50 +243,16 @@ void display()
 
   GraphicManager::GetGraphic()->DrawGrid();
   glPushMatrix();
+
+  //これから描画する空間をglTranslateの分だけ移動する.
   glTranslatef(-sizeX / 2, -sizeY / 2, -sizeZ / 2);
+
+  //Σ面の描画
   for (auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++)
   {
 	  (*it).Draw();
   }
-  /*
-  for(int i=0; i < 4; i++){
-	  cp_disp.x = cp[i].x;// -(double)sizeX / 2;
-	  cp_disp.y = cp[i].y;// -(double)sizeY / 2;
-	  cp_disp.z = cp[i].z;// -(double)sizeZ / 2;
-	  for(int j=0; j< 3; j++){
-		  ya.x = e_vec[i][j].y*position.z - e_vec[i][j].z*position.y;	
-		  ya.y = e_vec[i][j].z*position.x- e_vec[i][j].x*position.z;
-		  ya.z = e_vec[i][j].x*position.y - e_vec[i][j].y*position.x;
-		  ya_size = sqrt(ya.x*ya.x + ya.y*ya.y + ya.z*ya.z);
-		  
-		  //固有ベクトル描画
-		  glColor3d(1.0, 0.0, 0.0);
-		  glBegin(GL_LINE_STRIP);
-		  glVertex3f(cp_disp.x, cp_disp.y, cp_disp.z);
-		  glVertex3f(cp_disp.x + e_vec[i][j].x, cp_disp.y + e_vec[i][j].y, cp_disp.z + e_vec[i][j].z);
-		  glVertex3f(cp_disp.x + (3.0/4.0)*e_vec[i][j].x + (ya.x/ya_size)*(1.0/4.0), cp_disp.y + (3.0/4.0)*e_vec[i][j].y + (ya.y/ya_size)*(1.0/4.0), cp_disp.z + (3.0/4.0)*e_vec[i][j].z + (ya.z/ya_size)*(1.0/4.0));
-		  glVertex3f(cp_disp.x + e_vec[i][j].x, cp_disp.y + e_vec[i][j].y, cp_disp.z + e_vec[i][j].z);
-		  glVertex3f(cp_disp.x + (3.0/4.0)*e_vec[i][j].x - (ya.x/ya_size)*(1.0/4.0), cp_disp.y + (3.0/4.0)*e_vec[i][j].y - (ya.y/ya_size)*(1.0/4.0), cp_disp.z + (3.0/4.0)*e_vec[i][j].z - (ya.z/ya_size)*(1.0/4.0));
-		  glEnd();
-	  }
-	  
-	  //Σ面描画
-		  glColor3d(0.0, 0.0, 1.0);
-		  for(int k=0; k<round_num-1; k++){
-			  glBegin(GL_LINE_LOOP);
-			  glVertex3f(cp_disp.x, cp_disp.y, cp_disp.z);
-			  glVertex3f(cp_disp.x + round_cp[i][k].x, cp_disp.y + round_cp[i][k].y, cp_disp.z + round_cp[i][k].z);
-			  glVertex3f(cp_disp.x + round_cp[i][k+1].x, cp_disp.y + round_cp[i][k+1].y, cp_disp.z + round_cp[i][k+1].z);
-			  glEnd();
-		  }
-		  
-		  glBegin(GL_LINE_LOOP);
-		  glVertex3f(cp_disp.x, cp_disp.y, cp_disp.z);
-		  glVertex3f(cp_disp.x + round_cp[i][round_num-1].x, cp_disp.y + round_cp[i][round_num-1].y, cp_disp.z + round_cp[i][round_num-1].z);
-		  glVertex3f(cp_disp.x + round_cp[i][0].x, cp_disp.y + round_cp[i][0].y, cp_disp.z + round_cp[i][0].z);
-		  glEnd();
-  }
-  */
+
   /*
 	//十字特異点描画
   
@@ -331,9 +284,6 @@ void display()
 
 	//以下流線描画
 	
-  //printf("Ryu\n");
-	/*
-	REN
 	double step;// = -0.1;
 	double dx1, dy1, dz1;
 	double dx2, dy2, dz2;
@@ -344,11 +294,10 @@ void display()
 
 	//double tmp;
 
-	//printf("%f\n", cp[0].x);
-	//printf("d-series = %f %f %f\n", dx1, dy1, dz1);
 	//streamline
 
 	glColor3d(0.0, 1.0, 0.0);
+	/*
 	for(int t=0; t<4; t++){
 		if(t == 2){
 			step = 0.1;
@@ -356,11 +305,14 @@ void display()
 			step = -0.1;
 		}
 		for(int s = 0; s<round_num-1; s++){
-			dx1 = cp[t].x + round_cp[t][s].x*(first_len);	dy1 = cp[t].y + round_cp[t][s].y*(first_len);	dz1 = cp[t].z + round_cp[t][s].z*(first_len);
+			dx1 = cp[t].x + round_cp[t][s].x*(first_len);	
+			dy1 = cp[t].y + round_cp[t][s].y*(first_len);
+			dz1 = cp[t].z + round_cp[t][s].z*(first_len);
 
 			while(true){
-				if(dx1 > sizeX-5 || dx1 < 5 || dy1 > sizeY-5 || dy1 < 5 || dz1 > sizeZ-5 || dz1 < 5 ) break;
-				//printf("%d %d %d\n", dx1, dy1, dz1);
+				if(dx1 > sizeX-5 || dx1 < 5 || dy1 > sizeY-5 || dy1 < 5 || dz1 > sizeZ-5 || dz1 < 5 )
+					break;
+
 				dx2 = runge_kutta(dx1, dy1, dz1, 1, step);
 				dy2 = runge_kutta(dx1, dy1, dz1, 2, step);
 				dz2 = runge_kutta(dx1, dy1, dz1, 3, step);
@@ -371,15 +323,14 @@ void display()
 				dy2 = (dy2/d_size)*len;
 				dz2 = (dz2/d_size)*len;
 
-				//printf("two\n");
-
 				glBegin(GL_LINES);
 				glVertex3f(dx1-(double)sizeX/2.0, dy1-(double)sizeY/2.0, dz1-(double)sizeZ/2.0);
 				glVertex3f((dx1-(double)sizeX/2.0)+dx2, (dy1-(double)sizeY/2.0)+dy2, (dz1-(double)sizeZ/2.0)+dz2);
 				glEnd();
 
-				//printf("d1 = %f, %f, %f\n", dx1, dy1, dz1);
-				dx1 += dx2;	dy1 += dy2;	dz1 += dz2;
+				dx1 += dx2;	
+				dy1 += dy2;
+				dz1 += dz2;
 			}
 		}
 	}
@@ -401,6 +352,20 @@ void display()
   glPopMatrix();
 	glFlush();
 }
+void Keyboard(unsigned char key, int x, int y)
+{
+	CameraManager::Keyboard(key, x, y);
+}
+
+void MouseMove(int x, int y)
+{
+	CameraManager::MouseMove(x, y);
+}
+
+void MousePress(int button, int state, int x, int y)
+{
+	CameraManager::MousePress(button, state, x, y);
+}
 
 void resize(int w, int h)
 {
@@ -411,7 +376,6 @@ void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
-
 
 void toVector(float *data)
 {
@@ -446,112 +410,36 @@ void toVector2(float *data)
 	}
 }
 
-Vector3d rotate(Vector3d housen, Vector3d vec, double alpha){
-	Vector3d result;
-	double theta;
-	
-	theta = alpha * PI / 180.0;
-
-	result.x = ((housen.x*housen.x*(1-cos(theta)) + cos(theta))*vec.x + (housen.x*housen.y*(1-cos(theta)) - housen.z*sin(theta))*vec.y + (housen.z*housen.x*(1-cos(theta)) + housen.y*sin(theta))*vec.z);
-	result.y = ((housen.x*housen.y*(1-cos(theta)) + housen.z*sin(theta))*vec.x + (housen.y*housen.y*(1-cos(theta)) + cos(theta))*vec.y + (housen.y*housen.z*(1-cos(theta)) - housen.x*sin(theta))*vec.z);
-	result.z = ((housen.z*housen.x*(1-cos(theta)) - housen.y*sin(theta))*vec.x + (housen.y*housen.z*(1-cos(theta)) + housen.x*sin(theta))*vec.y + (housen.z*housen.z*(1-cos(theta)) + cos(theta))*vec.z);
-
-	return result; 
-}
-
-void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
-	int a, b;
-	double h_size;
-	double alpha = 360.0/round_num;
-	Vector3d housen, rotated;
-
-	FILE *fp;
-	//char name = (char)n;
-	char filepath[256];
-
-	sprintf(filepath, "round_point%d.txt", n);
-	fp = fopen(filepath, "w");
-	
-	/*
-	FILE *fp = fopen("round_point.txt", "w");
-	*/
-	//同符号ベクトル探す
-
-	//今はすべてが++-or--+なのでこれでいいが、将来的にすべて同符号パターンが生まれた場合は書き直す
-
-	for(int i=0; i<3; i++){
-		a = i;
-		if(i == 2){
-			b = 0;
-		}else{
-			b = i+1;
-		}
-
-		if(samesign_check(sub_val[n][a], sub_val[n][b])){
-			printf("samesign value = (%lf, %lf)\n", sub_val[n][a], sub_val[n][b]);
-			break;
-		}
-	}
-
-	//法線ベクトル求める
-	housen.x = (sub_vec[n][a].y*sub_vec[n][b].z - sub_vec[n][a].z*sub_vec[n][b].y);
-	housen.y = (sub_vec[n][a].z*sub_vec[n][b].x - sub_vec[n][a].x*sub_vec[n][b].z);
-	housen.z = (sub_vec[n][a].x*sub_vec[n][b].y - sub_vec[n][a].y*sub_vec[n][b].x);
-
-	h_size = sqrt(housen.x*housen.x + housen.y*housen.y + housen.z*housen.z);
-
-	housen.x = (housen.x/h_size);
-	housen.y = (housen.y/h_size);
-	housen.z = (housen.z/h_size);
-
-	printf("unit vector make %lf %lf %lf -> %lf\n", housen.x, housen.y, housen.z, sqrt(housen.x*housen.x + housen.y*housen.y + housen.z*housen.z));
-	//法線ベクトルを軸に回転行列かける
-	rotated.x = sub_vec[n][a].x;	rotated.y = sub_vec[n][a].y;	rotated.z = sub_vec[n][a].z;
-	fprintf(fp, "%lf %lf %lf\n", rotated.x, rotated.y, rotated.z);
-
-	for(int i=0;i < (int)(360.0/alpha); i++){
-		rotated = rotate(housen, rotated, alpha);
-		fprintf(fp, "%lf %lf %lf\n", rotated.x, rotated.y, rotated.z);
-	}
-
-	printf("aaa\n");
-
-	fclose(fp);
-	return;
+void idle()
+{
+	Sleep(10);	//CPUの負荷を減らすために10msec待つ
+	glutPostRedisplay();
 }
 
 int main(int argc, char *argv[])
 {
 	//ヤコビアンのデータを読み込み
-	vector<Jacobian> jacobians;
+	vector<Jacobian> jacobians;	//ヤコビアンを格納する動的配列
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
-	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
-	{
-		cout << (*it) << endl;
-	}
 
 	//クリティカルポイントのデータを読み込み
-	vector<Vector3d> cpoints;
+	vector<Vector3d> cpoints;	//クリティカルポイントを格納する動的配列
 	FileManager::ReadCritialPoint("cp.txt", cpoints);
-	for (auto it = cpoints.begin(); it != cpoints.end(); it++)
-	{
-		cout << (*it) << endl;
+
+	// Σ面を配列に保存
+	// ヤコビアンとクリティカルポイントの数が同じでなければならない
+	for (int i = 0; i < cpoints.size(); i++){
+		SigmaPlane s(jacobians[i], cpoints[i]);
+
+		if (s.HasPlane())
+			sigmaPlanes.push_back(s);
 	}
-
 	readText();
-
 	read_cp();
-	
+
 	read_eigen();
 
-	system("pause");
-
-	for(int k=0; k<4; k++){
-		make_round(e_val, e_vec, k);
-	}
-	
-	system("pause");
-	
+	system("pause");	
 	
 	for(int i=0; i < 4; i++){
 		read_round(i);
@@ -561,19 +449,13 @@ int main(int argc, char *argv[])
 	GraphicManager::Initialize(600, 800, argc, argv);
 	GraphicManager::GetGraphic()->MakeGrid(Vector3d(), size, Vector3i(2,2,2)); 
 
-	// Σ面を配列に保存
-	// ヤコビアンとクリティカルポイントの数が同じでなければならない
-	for (int i = 0; i < cpoints.size(); i++){
-		sigmaPlanes.push_back(SigmaPlane(jacobians[i], cpoints[i]));
-	}
-	
-
+	glutIdleFunc(idle);
 	glutDisplayFunc(display);
 	glutReshapeFunc(resize);
-	glutKeyboardFunc(CameraManager::Keyboard);
+	glutKeyboardFunc(Keyboard);
 
-	glutMouseFunc(CameraManager::MousePress);
-	glutMotionFunc(CameraManager::MouseMove);
+	glutMouseFunc(MousePress);
+	glutMotionFunc(MouseMove);
 	init();
 	glutMainLoop();
 	

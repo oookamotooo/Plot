@@ -1,7 +1,7 @@
 #ifndef VECTOR_3_H
 #define VECTOR_3_H
-
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <iostream>
 #include <sstream>
 #include <complex>
@@ -264,6 +264,23 @@ public:
 	Vector3<float> toFloatVector()
 	{
 		return Vector3<float>(x, y, z);
+	}
+
+	template < class U>
+	Vector3<double> rotatedVector(Vector3<U> axis, const float degree)
+	{
+		Vector3<double> result;
+		double theta;
+
+		theta = degree * M_PI / 180.0;
+
+		double C = cos(theta);
+		double S = sin(theta);
+		result.x = ((axis.x*axis.x*(1 - C) + C)*x + (axis.x*axis.y*(1 - C) - axis.z*S)*y + (axis.z*axis.x*(1 - C) + axis.y*S)*z);
+		result.y = ((axis.x*axis.y*(1 - C) + axis.z*S)*x + (axis.y*axis.y*(1 - C) + C)*y + (axis.y*axis.z*(1 - C) - axis.x*S)*z);
+		result.z = ((axis.z*axis.x*(1 - C) - axis.y*S)*x + (axis.y*axis.z*(1 - C) + axis.x*S)*y + (axis.z*axis.z*(1 - C) + C)*z);
+
+		return result;
 	}
 };
 

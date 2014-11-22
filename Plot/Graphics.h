@@ -6,12 +6,14 @@
 class Graphic
 {
 public :
-	Graphic(){}
+	Graphic();
 	virtual void Draw() = 0;
 
 protected:
 	unsigned int buffer;
 	std::vector<Vector3<float>> vertex;
+	void bindBuffer();
+private:
 };
 
 //ƒOƒŠƒbƒh‹óŠÔ

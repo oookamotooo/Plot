@@ -7,6 +7,32 @@ using namespace std;
 
 typedef Vector3<float> Vector3f;
 
+Graphic::Graphic()
+:buffer(0)
+{
+
+}
+
+//バッファを生成
+void Graphic::bindBuffer()
+{
+	if ( vertex.size() == 0 )
+		return;
+
+	//bufferを生成
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertex.size() * sizeof(Vector3<float>)), reinterpret_cast<GLfloat*>(&vertex[0]), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Graphic::Draw()
+{
+	//バッファが生成されていなければ,生成する
+	if ( buffer == 0 )
+		bindBuffer();
+}
+
 GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 {
 	//分割数0以下は許されないので底上げする
@@ -38,7 +64,6 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 				) );
 		}
 	}
-
 	for(int j=0; j<=split.y; j++){
 		for( int d=0; d<4; d++){
 			vertex.push_back( Vector3<float>( center.x + size.x*( d1[d] - 0.5 ),
@@ -47,8 +72,6 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 				) );
 		}
 	}
-
-	
 	for(int k=1; k<split.z; k++){
 		for( int d=0; d<4; d++){
 			vertex.push_back( Vector3<float>( center.x + size.x*( d1[d] - 0.5 ),
@@ -57,17 +80,14 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 				) );
 		}
 	}
-	
-	//bufferを生成
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertex.size() * sizeof(Vector3<float>)), reinterpret_cast<GLfloat*>(&vertex[0]), GL_STATIC_DRAW);
 }
 
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))
 
 void GridSpace::Draw()
 {
+	Graphic::Draw();
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);

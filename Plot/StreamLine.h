@@ -15,17 +15,5 @@ public:
 	void AddPoint(Vector3d p);
 };
 
-//ƒ°–Ê
-class SigmaPlane : public Graphic
-{
-public:
-	static const int Radius = 2;
-	SigmaPlane(Jacobian j, Vector3d criticalPoint);
-	void Draw();
-private:
-	Jacobian jacobian;
-	Vector3d criticalPoint;
-	Vector3d normal;
-};
 
 #endif
