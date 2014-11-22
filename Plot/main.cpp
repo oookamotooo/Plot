@@ -11,7 +11,7 @@
 #include "define.h"
 #include "Camera.h"
 #include "GraphicManager.h"
-
+#include "Primitive.h"
 //#define round_point 12
 #define PI  3.14159265358979323846
 
@@ -28,6 +28,8 @@ Vector3d round_cp[CP_NUM][round_num];
 double runge_kutta(double x, double y, double z, int i, double step);
 
 Vector3i size(91, 171, 86);
+
+vector<SigmaPlane> sigmaPlanes;
 
 int Index(int i, int j, int k)
 {
@@ -253,10 +255,17 @@ void display()
   glColor3d(0.0, 0.0, 0.0);
 
   GraphicManager::GetGraphic()->DrawGrid();
-
-
+  glPushMatrix();
+  glTranslatef(-sizeX / 2, -sizeY / 2, -sizeZ / 2);
+  for (auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++)
+  {
+	  (*it).Draw();
+  }
+  /*
   for(int i=0; i < 4; i++){
-	  cp_disp.x = cp[i].x - (double)sizeX/2;	cp_disp.y = cp[i].y - (double)sizeY/2;	cp_disp.z = cp[i].z - (double)sizeZ/2;
+	  cp_disp.x = cp[i].x;// -(double)sizeX / 2;
+	  cp_disp.y = cp[i].y;// -(double)sizeY / 2;
+	  cp_disp.z = cp[i].z;// -(double)sizeZ / 2;
 	  for(int j=0; j< 3; j++){
 		  ya.x = e_vec[i][j].y*position.z - e_vec[i][j].z*position.y;	
 		  ya.y = e_vec[i][j].z*position.x- e_vec[i][j].x*position.z;
@@ -290,7 +299,7 @@ void display()
 		  glVertex3f(cp_disp.x + round_cp[i][0].x, cp_disp.y + round_cp[i][0].y, cp_disp.z + round_cp[i][0].z);
 		  glEnd();
   }
-
+  */
   /*
 	//十字特異点描画
   
@@ -389,7 +398,7 @@ void display()
 		}
 	}
 	}*/
-
+  glPopMatrix();
 	glFlush();
 }
 
@@ -513,10 +522,18 @@ void make_round(double sub_val[CP_NUM][3], Vector3d sub_vec[CP_NUM][3], int n){
 
 int main(int argc, char *argv[])
 {
-	
+	//ヤコビアンのデータを読み込み
 	vector<Jacobian> jacobians;
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	for(auto it = jacobians.begin(); it != jacobians.end(); it++)
+	{
+		cout << (*it) << endl;
+	}
+
+	//クリティカルポイントのデータを読み込み
+	vector<Vector3d> cpoints;
+	FileManager::ReadCritialPoint("cp.txt", cpoints);
+	for (auto it = cpoints.begin(); it != cpoints.end(); it++)
 	{
 		cout << (*it) << endl;
 	}
@@ -532,17 +549,25 @@ int main(int argc, char *argv[])
 	for(int k=0; k<4; k++){
 		make_round(e_val, e_vec, k);
 	}
-	/*
+	
 	system("pause");
 	
 	
 	for(int i=0; i < 4; i++){
 		read_round(i);
 	}
-	*/
+
 	//streamline 描画
 	GraphicManager::Initialize(600, 800, argc, argv);
 	GraphicManager::GetGraphic()->MakeGrid(Vector3d(), size, Vector3i(2,2,2)); 
+
+	// Σ面を配列に保存
+	// ヤコビアンとクリティカルポイントの数が同じでなければならない
+	for (int i = 0; i < cpoints.size(); i++){
+		sigmaPlanes.push_back(SigmaPlane(jacobians[i], cpoints[i]));
+	}
+	
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(CameraManager::Keyboard);

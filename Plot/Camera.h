@@ -6,7 +6,6 @@
 class Camera
 {
 public:
-	Vector3d position, look;
 	static Camera* getCamera()
 	{
 		static Camera instance;
@@ -18,7 +17,11 @@ public:
 	void Rotate(float theta, float phi);	//âÒì]
 	void Zoom(float delta);					//ÉYÅ[ÉÄ
 	void SetViewportAndMatrix() const;
+
+	const Vector3d GetPosition() const { return position; }
+	const Vector3d GetLook() const { return look; }
 private:
+	Vector3d position, look;
 	Vector3d up;
 	float theta, phi, radius;	//É∆, É”, îºåa
 	float fov;	//éãñÏäp

@@ -3,6 +3,7 @@
 #include <complex>
 #include <string>
 #include "Jacobian.h"
+#include "Vector3.h"
 #include <vector>
 class FileManager
 {
@@ -27,6 +28,7 @@ public:
 	*/ 
 	static void ReadJacobianData(const std::string fileName, std::vector<Jacobian> &res);
 
+	static void ReadCritialPoint(const std::string fileName, std::vector<Vector3d> &res);
 private:
 	static bool readJacobian(std::ifstream &stream, Jacobian &res);
 };

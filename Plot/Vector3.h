@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <complex>
 
 template<class T>
 class Vector3
@@ -259,6 +260,11 @@ public:
 	return s << "(" << rhs.x << "," << rhs.y << "," << rhs.z << ")";
 	}
 	
+	//フロート型に変換
+	Vector3<float> toFloatVector()
+	{
+		return Vector3<float>(x, y, z);
+	}
 };
 
 template<class C>

@@ -19,10 +19,13 @@ public:
 class SigmaPlane : public Graphic
 {
 public:
-	SigmaPlane(Jacobian j);
-
+	static const int Radius = 2;
+	SigmaPlane(Jacobian j, Vector3d criticalPoint);
+	void Draw();
 private:
 	Jacobian jacobian;
+	Vector3d criticalPoint;
+	Vector3d normal;
 };
 
 #endif

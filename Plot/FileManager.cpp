@@ -71,3 +71,27 @@ void FileManager::ReadJacobianData(const string fileName, vector<Jacobian> &res)
 		res.push_back(j);
 	}
 }
+
+void FileManager::ReadCritialPoint(const string fileName, vector<Vector3d> &res)
+{
+	res.clear();
+	ifstream in(fileName);
+	if (!in)
+	{
+		cerr << "The file" << fileName << "was not opend" << endl;
+		return;
+	}
+
+	while (!in.eof())
+	{
+		Vector3d cp;
+		in >> cp.x >> cp.y;
+		if (in.eof())
+			break;
+
+		in >> cp.z;
+		res.push_back(cp);
+	}
+
+	return;
+}

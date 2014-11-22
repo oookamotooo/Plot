@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 Camera::Camera()
