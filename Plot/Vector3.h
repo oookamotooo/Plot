@@ -284,6 +284,12 @@ public:
 	}
 };
 
+template<class T>
+Vector3<float> toFloatVector(const T v)
+{
+	return Vector3<float>(v.x, v.y, v.z);
+}
+
 template<class C>
 Vector3<C> operator*(const double &k, const Vector3<C> &rhs)
 {
@@ -298,4 +304,6 @@ std::ostream& operator<<(std::ostream &s, const Vector3<C> &rhs)
 
 typedef Vector3<int> Vector3i;
 typedef Vector3<double> Vector3d;
+typedef Vector3<float> Vector3f;
+
 #endif

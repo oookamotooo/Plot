@@ -424,8 +424,9 @@ int main(int argc, char *argv[])
 
 	//クリティカルポイントのデータを読み込み
 	vector<Vector3d> cpoints;	//クリティカルポイントを格納する動的配列
-	FileManager::ReadCritialPoint("cp.txt", cpoints);
+	FileManager::ReadCritialPointData("cp.txt", cpoints);
 
+	cout << boolalpha << (jacobians.size() == cpoints.size()) << endl;
 	// Σ面を配列に保存
 	// ヤコビアンとクリティカルポイントの数が同じでなければならない
 	for (int i = 0; i < cpoints.size(); i++){

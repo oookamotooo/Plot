@@ -3,6 +3,7 @@
 #include "Vector3.h"
 
 #include <vector>
+
 class Graphic
 {
 public :
@@ -11,8 +12,9 @@ public :
 
 protected:
 	unsigned int buffer;
-	std::vector<Vector3<float>> vertex;
-	void bindBuffer();
+	std::vector<Vector3<float>> vertices;
+	void genVertexBuffer();
+	void bindVertexBuffer();
 private:
 };
 

@@ -9,7 +9,7 @@
 //—¬ü
 class StreamLine : public Graphic
 {
-	std::vector<Vector3d> points;
+	std::vector<unsigned int> indices;
 public:
 	void Draw();
 	void AddPoint(Vector3d p);

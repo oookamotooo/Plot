@@ -80,6 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Field.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="GraphicManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="define.h" />
+    <ClInclude Include="Field.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="GraphicManager.h" />
     <ClInclude Include="Graphics.h" />

@@ -73,13 +73,13 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 		if (normal.length() < 0.00000001)
 			return;
 
-		vertex.push_back(ToFloatVector(cp));	//クリティカルポイントを保存
+		vertices.push_back(ToFloatVector(cp));	//クリティカルポイントを保存
 		//平面を作る固有ベクトルを法線を軸に回転させ,円を作る
 		Vector3d rVec1 = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
 		for (int i = 0; i < 12; i++)
 		{
 			Vector3d p = rVec1.rotatedVector(normal, 360 * i / 12);// rotate(normal, rVec1, 360.0 * i / 12);
-			vertex.push_back(ToFloatVector(p + cp));
+			vertices.push_back(ToFloatVector(p + cp));
 		}
 
 		for (int i = 0; i < 12; i++)
@@ -100,7 +100,7 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))
 void SigmaPlane::Draw()
 {
-	if (vertex.size() == 0)
+	if (vertices.size() <= 1)
 	{
 		//cout << "return " << endl;
 		return;
@@ -139,15 +139,12 @@ void SigmaPlane::Draw()
 	glColor3d(0, 0, 1);
 	
 	//円を描画
-	glEnableClientState(GL_VERTEX_ARRAY);
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glVertexPointer(3, GL_FLOAT, sizeof(Vector3<float>), BUFFER_OFFSET(0));
+	bindVertexBuffer();
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glPopAttrib();
 }

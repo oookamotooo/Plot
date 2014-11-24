@@ -12,7 +12,7 @@ public:
 	SigmaPlane(Jacobian j, Vector3d criticalPoint);
 	void Draw();
 
-	bool HasPlane(){ return vertex.size() > 0; }
+	bool HasPlane(){ return vertices.size() > 0; }
 
 	const Vector3d& CPoint(){ return criticalPoint; }
 	const Jacobian& Jacob(){ return jacobian; }
