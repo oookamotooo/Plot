@@ -1,4 +1,4 @@
-#include "GraphicManager.h"
+﻿#include "GraphicManager.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <iostream>

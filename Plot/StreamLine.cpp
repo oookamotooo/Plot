@@ -1,4 +1,4 @@
-#include "StreamLine.h"
+﻿#include "StreamLine.h"
 #include <GL/glew.h>
 
 void StreamLine::BeginNewLine()

@@ -1,4 +1,4 @@
-#ifndef _GRAPHIC_MANAGER_H_
+﻿#ifndef _GRAPHIC_MANAGER_H_
 #define _GRAPHIC_MANAGER_H_
 
 #include "Graphics.h"

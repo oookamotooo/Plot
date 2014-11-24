@@ -1,4 +1,4 @@
-#ifndef _PRIMITIVE_H_
+Ôªø#ifndef _PRIMITIVE_H_
 #define _PRIMITIVE_H_
 
 #include "Graphics.h"
@@ -6,7 +6,7 @@
 #include <vector>
 #include "Jacobian.h"
 
-//ó¨ê¸
+//ÊµÅÁ∑ö
 class StreamLine : public Graphic
 {
 	std::vector<unsigned int> vertOfLine;

@@ -1,4 +1,4 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
 #include <gl/glut.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -9,7 +9,7 @@ using namespace std;
 Camera::Camera()
 	:theta(0), phi(0), fov(90), radius(20), up(0,1,0), frustumNear(0.1), frustumFar(500.0)
 {
-	calcPosition();	//‰ŠúˆÊ’u‚Ìİ’è
+	calcPosition();	//åˆæœŸä½ç½®ã®è¨­å®š
 }
 
 void Camera::calcPosition()
@@ -28,7 +28,7 @@ void Camera::Move(float x, float y, float z)
 	axisY.mul(y);
 	axisZ.mul(z);
 	position += axisX + axisY + axisZ;
-	look     += axisX + axisY ;	//z•ûŒü‚Ílook‚ÉŠÖŒW‚È‚¢(‰ñ“]‚Å‚Í‚ ‚é‚¯‚Ç)
+	look     += axisX + axisY ;	//zæ–¹å‘ã¯lookã«é–¢ä¿‚ãªã„(å›è»¢ã§ã¯ã‚ã‚‹ã‘ã©)
 
 	radius += z;
 }
@@ -74,7 +74,7 @@ void Camera::SetWindowSize(const int &_width, const int &_height)
 
 Vector3d Camera::ScreenToWorldVector( const float &x, const float &y)
 {
-	// -0.5 ~ 0. 5‚Ì”ÍˆÍ‚ÉƒXƒP[ƒŠƒ“ƒO
+	// -0.5 ~ 0. 5ã®ç¯„å›²ã«ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°
 	float screenX = (          x - width/2.0) / width;	
 	float screenY = ( height - y - height/2.0) / height;
 

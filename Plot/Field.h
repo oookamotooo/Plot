@@ -1,4 +1,4 @@
-#ifndef _FIELD_H__
+ï»¿#ifndef _FIELD_H__
 #define _FIELD_H__
 #include "Vector3.h"
 #include <vector>
@@ -24,7 +24,7 @@ public:
 	void Draw();
 private:
 
-	//ƒ‹ƒ“ƒQƒNƒbƒ^–@
+	//ãƒ«ãƒ³ã‚²ã‚¯ãƒƒã‚¿æ³•
 	Vector3d rungeKutta(const Vector3d &delta, const double &step);
 
 };

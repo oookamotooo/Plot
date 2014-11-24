@@ -1,4 +1,4 @@
-#include "SigmaPlane.h"
+ï»¿#include "SigmaPlane.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <GL/glew.h>
@@ -56,7 +56,7 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 	{
 		b = (a + 1) % 3;
 
-		//3‚Â‚ÌŒÅ—LƒxƒNƒgƒ‹‚Ì‚¤‚¿, À•”‚ª“¯•„†‚Ì‚à‚Ì‚ğ’T‚·
+		//3ã¤ã®å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã®ã†ã¡, å®Ÿéƒ¨ãŒåŒç¬¦å·ã®ã‚‚ã®ã‚’æ¢ã™
 		if (jacobian.eigenValue[a].real() * jacobian.eigenValue[b].real() > 0)
 		{
 			found = true;
@@ -68,19 +68,19 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 	{
 		index1 = a;
 		index2 = b;
-		//–@üƒxƒNƒgƒ‹‚ğŒvZ
+		//æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
 		Vector3< complex<double> > nor = jacobian.eigenVector[a].cross(jacobian.eigenVector[b]);
 
-		//•¡‘fƒxƒNƒgƒ‹‚ğÀƒxƒNƒgƒ‹‚Ö•ÏŠ·
-		//‚±‚±‚Å‚Íb’è“I‚É,‹••”‚ğØ‚èÌ‚Ä‚é‚±‚Æ‚É‚·‚é.
+		//è¤‡ç´ ãƒ™ã‚¯ãƒˆãƒ«ã‚’å®Ÿãƒ™ã‚¯ãƒˆãƒ«ã¸å¤‰æ›
+		//ã“ã“ã§ã¯æš«å®šçš„ã«,è™šéƒ¨ã‚’åˆ‡ã‚Šæ¨ã¦ã‚‹ã“ã¨ã«ã™ã‚‹.
 		normal = CompToReal(nor).normalize();
 
-		//–@ü‚ª0‚Ìê‡•½–Ê‚ª‚Å‚«‚È‚¢
+		//æ³•ç·šãŒ0ã®å ´åˆå¹³é¢ãŒã§ããªã„
 		if (normal.length() < 0.00000001)
 			return;
 
-		vertices.push_back(toFloatVector(cp));	//ƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚ğ•Û‘¶
-		//•½–Ê‚ğì‚éŒÅ—LƒxƒNƒgƒ‹‚ğ–@ü‚ğ²‚É‰ñ“]‚³‚¹,‰~‚ğì‚é
+		vertices.push_back(toFloatVector(cp));	//ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã‚’ä¿å­˜
+		//å¹³é¢ã‚’ä½œã‚‹å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ³•ç·šã‚’è»¸ã«å›è»¢ã•ã›,å††ã‚’ä½œã‚‹
 		Vector3d rVec1 = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
 		for (int i = 0; i < 12; i++)
 		{
@@ -98,7 +98,7 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 	}
 	else
 	{
-		//À•”‚ª“¯•„†‚Ì•¨‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡
+		//å®Ÿéƒ¨ãŒåŒç¬¦å·ã®ç‰©ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆ
 	}
 
 }
@@ -111,11 +111,11 @@ void SigmaPlane::Draw()
 		return;
 	}
 
-	Graphic::Draw();	//ƒoƒCƒ“ƒh‚µ‚½‚©‚ÌŠm”F
+	Graphic::Draw();	//ãƒã‚¤ãƒ³ãƒ‰ã—ãŸã‹ã®ç¢ºèª
 
 	if ( indexBuffer == 0 )
 	{
-		//buffer‚ğ¶¬
+		//bufferã‚’ç”Ÿæˆ
 		glGenBuffers(1, &indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLuint)(indices.size() * sizeof(unsigned int)), reinterpret_cast<GLfloat*>(&indices[0]), GL_STATIC_DRAW);
@@ -123,11 +123,11 @@ void SigmaPlane::Draw()
 
 	glPushAttrib(GL_COLOR);
 	glColor3d(1, 0, 0);
-	//–îˆó‚ÍƒJƒƒ‰‚Ì•û‚ğŒü‚©‚¹‚é‚½‚ß–ˆ‰ñŒvZ
-	//ŒÅ—LƒxƒNƒgƒ‹‚ğ–îˆó‚Å•\Œ»
+	//çŸ¢å°ã¯ã‚«ãƒ¡ãƒ©ã®æ–¹ã‚’å‘ã‹ã›ã‚‹ãŸã‚æ¯å›è¨ˆç®—
+	//å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’çŸ¢å°ã§è¡¨ç¾
 	for (int i = 0; i < 3; i++)
 	{
-		//À‹óŠÔ‚ÉÊ‘œ
+		//å®Ÿç©ºé–“ã«å†™åƒ
 		auto ev = Radius * toFloatVector(CompToReal(jacobian.eigenVector[i])).normalize();
 		auto nor = ev.cross(toFloatVector(Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
 		auto arrow1 = nor + 0.9*ev;
@@ -143,7 +143,7 @@ void SigmaPlane::Draw()
 
 	glColor3d(0, 0, 1);
 	
-	//‰~‚ğ•`‰æ
+	//å††ã‚’æç”»
 	bindVertexBuffer();
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -165,14 +165,14 @@ bool SigmaPlane::IsHit( const Vector3d &position, const Vector3d direction , dou
 		return false;
 
 	Vector3d dir = criticalPoint - position;
-	//–Ê‚Æ”½‘Î•ûŒü‚Éi‚ñ‚Å‚¢‚éê‡‚Ífalse
+	//é¢ã¨åå¯¾æ–¹å‘ã«é€²ã‚“ã§ã„ã‚‹å ´åˆã¯false
 	if( direction.dot( dir ) < 0 )
 		return false;
 
 	float n  = normal.dot( dir );
 	float n2 = normal.dot( direction );
 
-	//•½–Ê‚Æ•½s‚Èê‡‚ÍŒğ‚í‚ç‚È‚¢
+	//å¹³é¢ã¨å¹³è¡Œãªå ´åˆã¯äº¤ã‚ã‚‰ãªã„
 	if( std::abs(n2) < 0.000000001 )
 		return false;
 

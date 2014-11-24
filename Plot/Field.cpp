@@ -1,4 +1,4 @@
-#include "Field.h"
+ï»¿#include "Field.h"
 
 Field::Field(Vector3i size)
 :Size(size)
@@ -17,19 +17,19 @@ const int Field::Index(const int &i, const int &j, const int &k) const
 	return k*Size.x*Size.y + j*Size.x + i;
 }
 
-//Žw’è‚µ‚½ƒCƒ“ƒfƒbƒNƒX‚Ì’l‚ð•Ô‚·(‘ã“ü‰Â”\)
+//æŒ‡å®šã—ãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å€¤ã‚’è¿”ã™(ä»£å…¥å¯èƒ½)
 Vector3d& Field::Data(const int &i, const int &j, const int &k)
 {
 	return data[Index(i, j, k)];
 }
 
-//Žw’è‚µ‚½ƒCƒ“ƒfƒbƒNƒX‚Ì’l‚ð•Ô‚·(‘ã“ü‰Â”\)
+//æŒ‡å®šã—ãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å€¤ã‚’è¿”ã™(ä»£å…¥å¯èƒ½)
 Vector3d& Field::Data(const int &index)
 {
 	return data[index];
 }
 
-// ŽÀ”‚ÌƒCƒ“ƒfƒbƒNƒX‚Å‚ÍüŒ`•âŠ®‚É‚æ‚è’l‚ð•Ô‚·(ReadOnly)
+// å®Ÿæ•°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§ã¯ç·šå½¢è£œå®Œã«ã‚ˆã‚Šå€¤ã‚’è¿”ã™(ReadOnly)
 Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 {
 	int i = floor(x);
@@ -54,7 +54,7 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 
 	return res;
 }
-// ŽÀ”‚ÌƒCƒ“ƒfƒbƒNƒX‚Å‚ÍüŒ`•âŠ®‚É‚æ‚è’l‚ð•Ô‚·(ReadOnly)
+// å®Ÿæ•°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§ã¯ç·šå½¢è£œå®Œã«ã‚ˆã‚Šå€¤ã‚’è¿”ã™(ReadOnly)
 Vector3d Field::GetData(const Vector3d &pos) const
 {
 	return GetData(pos.x, pos.y, pos.z);
@@ -63,8 +63,8 @@ Vector3d Field::GetData(const Vector3d &pos) const
 namespace
 {
 	/*
-	//’Pƒ‚Éˆø”‚Æ‚µ‚ÄÀ•W(¬”“_ŠÜ‚ß)‚ð—^‚¦‚éŒ`‚É‚µ‚½‚Ù‚¤‚ª”½•œˆ—‚Ì‚Æ‚«Šy
-	//—^‚¦‚ç‚ê‚½À•W‚©‚çƒ^ƒCƒ€ƒXƒeƒbƒvŒã‚ÌÀ•W‚ð•Ô‚·ŠÖ”
+	//å˜ç´”ã«å¼•æ•°ã¨ã—ã¦åº§æ¨™(å°æ•°ç‚¹å«ã‚)ã‚’ä¸Žãˆã‚‹å½¢ã«ã—ãŸã»ã†ãŒåå¾©å‡¦ç†ã®ã¨ãæ¥½
+	//ä¸Žãˆã‚‰ã‚ŒãŸåº§æ¨™ã‹ã‚‰ã‚¿ã‚¤ãƒ ã‚¹ãƒ†ãƒƒãƒ—å¾Œã®åº§æ¨™ã‚’è¿”ã™é–¢æ•°
 	double streamline(double x, double y, double z, int i){
 
 		double test_x[8], test_y[8], test_z[8];
@@ -78,7 +78,7 @@ namespace
 		//float x_d = x - x_i;
 
 
-		//xyzÀ•W‚©‚çijk‚Ì’l‚Æstu‚Ì’l‚ðo‚·B
+		//xyzåº§æ¨™ã‹ã‚‰ijkã®å€¤ã¨stuã®å€¤ã‚’å‡ºã™ã€‚
 
 		x_i = floor(x);
 		x_d = x - x_i;
@@ -92,13 +92,13 @@ namespace
 		//y_d = modf(y, &y_i);
 		//z_d = modf(z, &z_i);
 	
-		//‚»‚ê‚¼‚ê‚É‘Î‰ž‚·‚éüŒ`•âŠ®’l‚ð•Ô
+		//ãã‚Œãžã‚Œã«å¯¾å¿œã™ã‚‹ç·šå½¢è£œå®Œå€¤ã‚’è¿”
 
 		//printf("aaaaaaaaaaaaaaaaa\n");
 		//printf("%d %d %d, %f %f %f\n", x_i, y_i, z_i, x_d, y_d, z_d);
 		//if(x_i+1 > sizeX || y_i+1 > sizeY || z_i+1 > sizeZ) return 0;
 		//for(int i=0; i < 1; i++){
-		//inTotest‚Å‚Í-1-1-1‚Ü‚Å‚¢‚ê‚é‚Ì‚ÅA+1+1+1‚µ‚Ä‚¨‚­
+		//inTotestã§ã¯-1-1-1ã¾ã§ã„ã‚Œã‚‹ã®ã§ã€+1+1+1ã—ã¦ãŠã
 		//printf("into %d %d %d\n", x_i+1, y_i+1, z_i+1);
 		inTotest(x_i + 1, y_i + 1, z_i + 1, test_x, test_y, test_z);
 		switch (i){
@@ -139,8 +139,8 @@ void Field::CalcStreamLine( const SigmaPlane &sigmaPlane, StreamLine &streamLine
 	const double len = 0.1;
 	const double step = jacobian.eigenValue[sigmaPlane.Index1()].real() < 0 ? -0.1 : 0.1;
 
-	Vector3d vec    = sigmaPlane.Vec1();	//–Ê‚ð\¬‚·‚éŒÅ—LƒxƒNƒgƒ‹‚Ì1‚Â–Ú‚ðŽæ“¾
-	Vector3d normal = sigmaPlane.Normal();	//–Ê‚Ì–@üƒxƒNƒgƒ‹‚ðŽæ“¾ 
+	Vector3d vec    = sigmaPlane.Vec1();	//é¢ã‚’æ§‹æˆã™ã‚‹å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã®1ã¤ç›®ã‚’å–å¾—
+	Vector3d normal = sigmaPlane.Normal();	//é¢ã®æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾— 
 	for(int s = 0; s < 19; s++)
 	{
 		Vector3d v =  vec.rotatedVector(normal, 360.0 / 20.0 * s );

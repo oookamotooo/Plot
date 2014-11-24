@@ -1,4 +1,4 @@
-#include "FileManager.h"
+ï»¿#include "FileManager.h"
 #include <fstream>
 #include <iostream>
 #include "Vector3.h"
@@ -6,7 +6,7 @@ using namespace std;
 
 namespace 
 {
-	// •¡‘f”’l‚ğ3‚Â•ª“Ç‚İ‚Ş
+	// è¤‡ç´ æ•°å€¤ã‚’3ã¤åˆ†èª­ã¿è¾¼ã‚€
 	inline bool ReadComplexLine(ifstream &stream, complex<double> res[3])
 	{
 		for(int i=0; i<3; i++)
@@ -21,7 +21,7 @@ namespace
 		return true;
 	}
 
-	// À”’l‚ğ3‚Â•ª“Ç‚İ‚Ş
+	// å®Ÿæ•°å€¤ã‚’3ã¤åˆ†èª­ã¿è¾¼ã‚€
 	inline bool ReadDoubleLine(ifstream &stream, double res[3])
 	{
 		for (int i = 0; i < 3; i++)
@@ -42,26 +42,26 @@ bool FileManager::readJacobian(std::ifstream &stream, Jacobian &res)
 {
 	complex<double> eigen[3];
 
-	//ŒÅ—L’l‚ğ“Ç‚İ‚Ş
+	//å›ºæœ‰å€¤ã‚’èª­ã¿è¾¼ã‚€
 	if ( !ReadComplexLine(stream, eigen) )
 		return false;
 
 	Vector3<complex<double>> vec[3];
 	complex<double> buf[3];
 
-	//1s“Ç‚İ‚ñ‚Å,‚»‚ê‚¼‚ê‚Ìx¬•ª‚É‘ã“ü
+	//1è¡Œèª­ã¿è¾¼ã‚“ã§,ãã‚Œãã‚Œã®xæˆåˆ†ã«ä»£å…¥
 	if( !ReadComplexLine(stream, buf) )
 		return false;
 	for(int i=0; i<3; i++)
 		vec[i].x = buf[i];
 
-	//1s“Ç‚İ‚ñ‚Å,‚»‚ê‚¼‚ê‚Ìy¬•ª‚É‘ã“ü
+	//1è¡Œèª­ã¿è¾¼ã‚“ã§,ãã‚Œãã‚Œã®yæˆåˆ†ã«ä»£å…¥
 	if( !ReadComplexLine(stream, buf) )
 		return false;
 	for(int i=0; i<3; i++)
 		vec[i].y = buf[i];
 
-	//1s“Ç‚İ‚ñ‚Å,‚»‚ê‚¼‚ê‚Ìz¬•ª‚É‘ã“ü
+	//1è¡Œèª­ã¿è¾¼ã‚“ã§,ãã‚Œãã‚Œã®zæˆåˆ†ã«ä»£å…¥
 	if( !ReadComplexLine(stream, buf) )
 		return false;
 	for(int i=0; i<3; i++)
@@ -71,7 +71,7 @@ bool FileManager::readJacobian(std::ifstream &stream, Jacobian &res)
 	return true;
 }
 
-//ƒ„ƒRƒrƒAƒ“‚Ì“Ç‚İ‚İ
+//ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã®èª­ã¿è¾¼ã¿
 void FileManager::ReadJacobianData(const string fileName, vector<Jacobian> &res)
 {
 	ifstream in(fileName);
@@ -92,7 +92,7 @@ void FileManager::ReadJacobianData(const string fileName, vector<Jacobian> &res)
 	in.close();
 }
 
-//ƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚Ì“Ç‚İ‚İ
+//ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã®èª­ã¿è¾¼ã¿
 void FileManager::ReadCritialPointData(const string fileName, vector<Vector3d> &res)
 {
 	res.clear();
@@ -117,7 +117,7 @@ void FileManager::ReadCritialPointData(const string fileName, vector<Vector3d> &
 	return;
 }
 
-//¥‹CŒ—‚Ìƒf[ƒ^‚Ì“Ç‚İ‚İ.
+//ç£æ°—åœã®ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿.
 void FileManager::ReadFieldData(const string fileName, Field &field)
 {
 	/*
@@ -128,7 +128,7 @@ void FileManager::ReadFieldData(const string fileName, Field &field)
 	}
 	*/
 	FILE *fp = fopen(fileName.c_str(), "r");
-	// X, Y, Z‚Ì•ûŒü‚ÉŠi”[‚³‚ê‚Ä‚¢‚é.
+	// X, Y, Zã®æ–¹å‘ã«æ ¼ç´ã•ã‚Œã¦ã„ã‚‹.
 	for (int k = 0; k < field.Size.z; k++){
 		for (int j = 0; j < field.Size.y; j++){
 			for (int i = 0; i < field.Size.x; i++){
@@ -136,7 +136,7 @@ void FileManager::ReadFieldData(const string fileName, Field &field)
 				/*
 				if( !ReadDoubleLine(in, res) )
 				{
-					cout << "ƒf[ƒ^”‚ª‡‚¢‚Ü‚¹‚ñ" << endl;
+					cout << "ãƒ‡ãƒ¼ã‚¿æ•°ãŒåˆã„ã¾ã›ã‚“" << endl;
 					exit(2);
 				}*/
 				fscanf(fp,"%lf %lf %lf", &res[0], &res[1], &res[2]);

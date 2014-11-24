@@ -1,4 +1,4 @@
-#include "Graphics.h"
+ï»¿#include "Graphics.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <iostream>
@@ -16,20 +16,20 @@ bool Graphic::IsHit( const Vector3d &position, const Vector3d direction , double
 	return false;
 }
 
-//’¸“_—p‚Ìƒoƒbƒtƒ@‚ğ¶¬
+//é ‚ç‚¹ç”¨ã®ãƒãƒƒãƒ•ã‚¡ã‚’ç”Ÿæˆ
 void Graphic::genVertexBuffer()
 {
 	if ( vertices.size() <= 1 )
 		return;
 
-	//buffer‚ğ¶¬
+	//bufferã‚’ç”Ÿæˆ
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertices.size() * sizeof(Vector3<float>)), reinterpret_cast<GLfloat*>(&vertices[0]), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-//’¸“_—p‚Ìƒoƒbƒtƒ@‚ğƒoƒCƒ“ƒh‚·‚é.
+//é ‚ç‚¹ç”¨ã®ãƒãƒƒãƒ•ã‚¡ã‚’ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹.
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))
 void Graphic::bindVertexBuffer()
 {
@@ -41,35 +41,35 @@ void Graphic::bindVertexBuffer()
 
 void Graphic::Draw()
 {
-	//ƒoƒbƒtƒ@‚ª¶¬‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î,¶¬‚·‚é
+	//ãƒãƒƒãƒ•ã‚¡ãŒç”Ÿæˆã•ã‚Œã¦ã„ãªã‘ã‚Œã°,ç”Ÿæˆã™ã‚‹
 	if ( buffer == 0 )
 		genVertexBuffer();
 }
 
 GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 {
-	//•ªŠ„”0ˆÈ‰º‚Í‹–‚³‚ê‚È‚¢‚Ì‚Å’êã‚°‚·‚é
+	//åˆ†å‰²æ•°0ä»¥ä¸‹ã¯è¨±ã•ã‚Œãªã„ã®ã§åº•ä¸Šã’ã™ã‚‹
 	split.x = std::max( 1, split.x);
 	split.y = std::max( 1, split.y);
 	split.z = std::max( 1, split.z);
 
-	//’¸“_•ª‚Ì—Ìˆæ‚ğ—\–ñ‚µ‚Ä‚¨‚­
+	//é ‚ç‚¹åˆ†ã®é ˜åŸŸã‚’äºˆç´„ã—ã¦ãŠã
 	vertices.reserve( 8 + 4*((split.x-1) + (split.y-1) + (split.z-1)) );
 
-	//À•W²
+	//åº§æ¨™è»¸
 	
-	vertices.push_back( Vector3f(center.x - size.x/2, center.y, center.z) );	//x²
+	vertices.push_back( Vector3f(center.x - size.x/2, center.y, center.z) );	//xè»¸
 	vertices.push_back( Vector3f(center.x + size.x/2, center.y, center.z) );
-	vertices.push_back( Vector3f(center.x, center.y - size.y/2, center.z) );	//y²
+	vertices.push_back( Vector3f(center.x, center.y - size.y/2, center.z) );	//yè»¸
 	vertices.push_back( Vector3f(center.x, center.y + size.y/2, center.z) );
-	vertices.push_back( Vector3f(center.x, center.y, center.z - size.z/2) );	//z²
+	vertices.push_back( Vector3f(center.x, center.y, center.z - size.z/2) );	//zè»¸
 	vertices.push_back( Vector3f(center.x, center.y, center.z + size.z/2) );
 
-	//æ‚ÉŠO˜g‚Ì’¸“_‚ğ•Û‘¶
+	//å…ˆã«å¤–æ ã®é ‚ç‚¹ã‚’ä¿å­˜
 	int d1[] = {0, 0, 1, 1};
 	int d2[] = {0, 1, 1, 0};
 
-	//•ªŠ„•”•ª‚Ì’¸“_‚ğ•Û‘¶
+	//åˆ†å‰²éƒ¨åˆ†ã®é ‚ç‚¹ã‚’ä¿å­˜
 	for(int i=0; i <= split.x; i++){
 		for( int d=0; d<4; d++){
 			vertices.push_back( Vector3<float>( center.x + size.x*( 1.0*i / split.x - 0.5),

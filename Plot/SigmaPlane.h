@@ -1,11 +1,11 @@
-#ifndef _SIGMA_PLANE_H_
+ï»¿#ifndef _SIGMA_PLANE_H_
 #define _SIGMA_PLANE_H_
 
 #include "Graphics.h"
 #include "Jacobian.h"
 #include "StreamLine.h"
 
-//ƒ°–Ê
+//Î£é¢
 class SigmaPlane : public Graphic
 {
 public:
@@ -29,7 +29,7 @@ private:
 	Jacobian jacobian;
 	Vector3d criticalPoint;
 	Vector3d normal;
-	int index1, index2;	//•½–Ê‚ğ\¬‚·‚éŒÅ—LƒxƒNƒgƒ‹‚ÌƒCƒ“ƒfƒbƒNƒX
+	int index1, index2;	//å¹³é¢ã‚’æ§‹æˆã™ã‚‹å›ºæœ‰ãƒ™ã‚¯ãƒˆãƒ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 	unsigned int indexBuffer;
 	std::vector<unsigned int> indices;
 	std::vector<StreamLine*> streamLines;

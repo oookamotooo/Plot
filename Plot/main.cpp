@@ -1,4 +1,4 @@
-
+ï»¿
 #include<iostream>
 #include <cstdio>
 #define _USE_MATH_DEFINES
@@ -33,15 +33,15 @@ void display()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//}Œ`‚Ì•`‰æ 
+	//å›³å½¢ã®æç”» 
 	glColor3d(0.0, 0.0, 0.0);
 
 	glPushMatrix();
 
-	//ƒOƒŠƒbƒh‚Ì•`‰æ
+	//ã‚°ãƒªãƒƒãƒ‰ã®æç”»
 	GraphicManager::GetGraphic()->DrawGrid();
 
-	// —¬ü‚Æƒ°–Ê‚Ì•`‰æ
+	// æµç·šã¨Î£é¢ã®æç”»
 	for (auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++){
 		(*it)->Draw();
 	}
@@ -51,7 +51,7 @@ void display()
 }
 
 
-//‘¶İ‚·‚é‚·‚×‚Ä‚ÌƒOƒ‰ƒtƒBƒbƒN‚ğİ’è‚·‚é
+//å­˜åœ¨ã™ã‚‹ã™ã¹ã¦ã®ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚’è¨­å®šã™ã‚‹
 void SetAllGraphicVisible( bool visible )
 {
 	for ( auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++ )
@@ -115,7 +115,7 @@ void init(void)
 
 void idle()
 {
-	Sleep(10);	//CPU‚Ì•‰‰×‚ğŒ¸‚ç‚·‚½‚ß‚É10msec‘Ò‚Â
+	Sleep(10);	//CPUã®è² è·ã‚’æ¸›ã‚‰ã™ãŸã‚ã«10msecå¾…ã¤
 	glutPostRedisplay();
 }
 
@@ -127,22 +127,22 @@ ostream& OK(ostream &s)
 
 int main(int argc, char *argv[])
 {
-	int charWidth = 50; //•¶š•1
-	//ƒ„ƒRƒrƒAƒ“‚Ìƒf[ƒ^‚ğ“Ç‚İ‚İ
-	cout << std::setw(charWidth) << left << "ƒ„ƒRƒrƒAƒ“‚Ìƒf[ƒ^‚ğ“Ç‚İ‚İ";
-	vector<Jacobian> jacobians;	//ƒ„ƒRƒrƒAƒ“‚ğŠi”[‚·‚é“®“I”z—ñ
+	int charWidth = 50; //æ–‡å­—å¹…1
+	//ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã®ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿
+	cout << std::setw(charWidth) << left << "ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã®ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿";
+	vector<Jacobian> jacobians;	//ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã‚’æ ¼ç´ã™ã‚‹å‹•çš„é…åˆ—
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	cout << OK << endl;
 
-	//ƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚Ìƒf[ƒ^‚ğ“Ç‚İ‚İ
-	cout << setw(charWidth) << left << "ƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚Ì“Ç‚İ‚İ";
-	vector<Vector3d> cpoints;	//ƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚ğŠi”[‚·‚é“®“I”z—ñ
+	//ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã®ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿
+	cout << setw(charWidth) << left << "ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã®èª­ã¿è¾¼ã¿";
+	vector<Vector3d> cpoints;	//ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã‚’æ ¼ç´ã™ã‚‹å‹•çš„é…åˆ—
 	FileManager::ReadCritialPointData("cp.txt", cpoints);
 	cout << OK << endl;
 
-	// ƒ°–Ê‚ğ”z—ñ‚É•Û‘¶
-	// ƒ„ƒRƒrƒAƒ“‚ÆƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚Ì”‚ª“¯‚¶‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
-	cout << setw(charWidth) << left <<  "ƒ„ƒRƒrƒAƒ“‚ÆƒNƒŠƒeƒBƒJƒ‹ƒ|ƒCƒ“ƒg‚©‚çƒ°–Ê‚ğ¶¬" ;
+	// Î£é¢ã‚’é…åˆ—ã«ä¿å­˜
+	// ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã¨ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã®æ•°ãŒåŒã˜ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
+	cout << setw(charWidth) << left <<  "ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã¨ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ãƒã‚¤ãƒ³ãƒˆã‹ã‚‰Î£é¢ã‚’ç”Ÿæˆ" ;
 	for (int i = 0; i < cpoints.size(); i++){
 		auto *s = new SigmaPlane(jacobians[i], cpoints[i]);
 
@@ -151,15 +151,15 @@ int main(int argc, char *argv[])
 	}
 	cout << OK << endl;
 
-	//ƒtƒB[ƒ‹ƒh‚Ì¶¬
+	//ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®ç”Ÿæˆ
 	field = GraphicManager::GetGraphic()->MakeField(size);
 
-	//¶¬‚µ‚½ƒtƒB[ƒ‹ƒh‚Éƒf[ƒ^‚ğ“Ç‚İ‚Ş
-	cout << setw(charWidth) << left << "¥ê‚ÌƒxƒNƒgƒ‹ƒf[ƒ^‚Ì“Ç‚İ‚İ";
+	//ç”Ÿæˆã—ãŸãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã«ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
+	cout << setw(charWidth) << left << "ç£å ´ã®ãƒ™ã‚¯ãƒˆãƒ«ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿";
 	FileManager::ReadFieldData("bfield_near_cusp.txt", *field);
 	cout << OK << endl;
 
-	cout << setw(charWidth) << left << "—¬ü‚ÌŒvZ";
+	cout << setw(charWidth) << left << "æµç·šã®è¨ˆç®—";
 	for(int i=0; i<sigmaPlanes.size(); i++)
 	{
 		StreamLine *streamLine = new StreamLine();
@@ -171,10 +171,10 @@ int main(int argc, char *argv[])
 	Camera::getCamera()->SetLook(size/2.0);
 
 
-	//OpenGLŠÖ˜A‚Ì‰Šú‰»
+	//OpenGLé–¢é€£ã®åˆæœŸåŒ–
 	GraphicManager::Initialize(600, 800, argc, argv);
 
-	//ƒOƒŠƒbƒh‚Ì¶¬
+	//ã‚°ãƒªãƒƒãƒ‰ã®ç”Ÿæˆ
 	GraphicManager::GetGraphic()->MakeGrid(size/2.0, size, Vector3i(2,2,2)); 
 
 	glutIdleFunc(idle);

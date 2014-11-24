@@ -1,11 +1,11 @@
-#ifndef _JACOBIAN_H_
+ï»¿#ifndef _JACOBIAN_H_
 #define _JACOBIAN_H_
 
 #include <complex>
 #include <iostream>
 #include "Vector3.h"
 
-//ƒ„ƒRƒrƒAƒ“‚Ìî•ñ‚ğŠi”[‚·‚éƒNƒ‰ƒX.
+//ãƒ¤ã‚³ãƒ“ã‚¢ãƒ³ã®æƒ…å ±ã‚’æ ¼ç´ã™ã‚‹ã‚¯ãƒ©ã‚¹.
 class Jacobian
 {
 public :

@@ -1,4 +1,4 @@
-#ifndef _GRAPHICS_H_
+ï»¿#ifndef _GRAPHICS_H_
 #define _GRAPHICS_H_
 #include "Vector3.h"
 
@@ -12,7 +12,7 @@ public :
 	void SetVisible(bool v){ visible = v; }
 	bool GetVisible(){ return visible;}
 
-	//position‚©‚çdirection‚ÌƒxƒNƒgƒ‹‚ÆÕ“Ë‚·‚é‚©‚Ç‚¤‚©, length‚É‚ÍÕ“Ë‚µ‚½ê‡‹——£‚ª“ü‚é
+	//positionã‹ã‚‰directionã®ãƒ™ã‚¯ãƒˆãƒ«ã¨è¡çªã™ã‚‹ã‹ã©ã†ã‹, lengthã«ã¯è¡çªã—ãŸå ´åˆè·é›¢ãŒå…¥ã‚‹
 	virtual bool IsHit( const Vector3d &position, const Vector3d direction , double &length);
 protected:
 	unsigned int buffer;
@@ -23,11 +23,11 @@ private:
 	bool visible;
 };
 
-//ƒOƒŠƒbƒh‹óŠÔ
+//ã‚°ãƒªãƒƒãƒ‰ç©ºé–“
 class GridSpace : public Graphic
 {
 public:
-	//’†SˆÊ’u, ƒTƒCƒY, Še²‚Ì•ªŠ„”
+	//ä¸­å¿ƒä½ç½®, ã‚µã‚¤ã‚º, å„è»¸ã®åˆ†å‰²æ•°
 	//template<class T, typename S>
 	GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split);
 	void Draw();
