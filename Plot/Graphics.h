@@ -9,13 +9,18 @@ class Graphic
 public :
 	Graphic();
 	virtual void Draw() = 0;
+	void SetVisible(bool v){ visible = v; }
+	bool GetVisible(){ return visible;}
 
+	//positionからdirectionのベクトルと衝突するかどうか, lengthには衝突した場合距離が入る
+	virtual bool IsHit( const Vector3d &position, const Vector3d direction , double &length);
 protected:
 	unsigned int buffer;
 	std::vector<Vector3<float>> vertices;
 	void genVertexBuffer();
 	void bindVertexBuffer();
 private:
+	bool visible;
 };
 
 //グリッド空間

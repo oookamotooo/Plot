@@ -5,15 +5,25 @@
 using namespace std;
 
 GraphicManager::GraphicManager()
-	:grid(NULL)
+	:grid(NULL), field(NULL)
 {
 
 }
 
-
 void GraphicManager::DrawGrid()
 {
 	grid->Draw();
+}
+
+Field* const GraphicManager::MakeField(const Vector3i &size)
+{
+	if( field == NULL)
+	{
+		field = new Field(size);
+		graphics.push_back(field);
+	} 
+
+	return field;
 }
 
 void GraphicManager::Initialize(int windowX, int windowY, int argc, char** argv)

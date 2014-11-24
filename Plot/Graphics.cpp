@@ -11,6 +11,11 @@ Graphic::Graphic()
 
 }
 
+bool Graphic::IsHit( const Vector3d &position, const Vector3d direction , double &length)
+{
+	return false;
+}
+
 //頂点用のバッファを生成
 void Graphic::genVertexBuffer()
 {
@@ -52,12 +57,13 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 	vertices.reserve( 8 + 4*((split.x-1) + (split.y-1) + (split.z-1)) );
 
 	//座標軸
-	vertices.push_back( Vector3f(center.x, center.y, center.z - size.z/2) );	//x軸
-	vertices.push_back( Vector3f(center.x, center.y, center.z + size.z/2) );
+	
+	vertices.push_back( Vector3f(center.x - size.x/2, center.y, center.z) );	//x軸
+	vertices.push_back( Vector3f(center.x + size.x/2, center.y, center.z) );
 	vertices.push_back( Vector3f(center.x, center.y - size.y/2, center.z) );	//y軸
 	vertices.push_back( Vector3f(center.x, center.y + size.y/2, center.z) );
-	vertices.push_back( Vector3f(center.x - size.x/2, center.y, center.z) );	//z軸
-	vertices.push_back( Vector3f(center.x + size.x/2, center.y, center.z) );
+	vertices.push_back( Vector3f(center.x, center.y, center.z - size.z/2) );	//z軸
+	vertices.push_back( Vector3f(center.x, center.y, center.z + size.z/2) );
 
 	//先に外枠の頂点を保存
 	int d1[] = {0, 0, 1, 1};
@@ -72,6 +78,7 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 				) );
 		}
 	}
+
 	for(int j=0; j<=split.y; j++){
 		for( int d=0; d<4; d++){
 			vertices.push_back( Vector3<float>( center.x + size.x*( d1[d] - 0.5 ),
@@ -80,6 +87,7 @@ GridSpace::GridSpace(Vector3<float> center, Vector3<float> size, Vector3i split)
 				) );
 		}
 	}
+
 	for(int k=1; k<split.z; k++){
 		for( int d=0; d<4; d++){
 			vertices.push_back( Vector3<float>( center.x + size.x*( d1[d] - 0.5 ),

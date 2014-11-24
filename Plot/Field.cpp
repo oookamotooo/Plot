@@ -3,10 +3,16 @@
 Field::Field(Vector3i size)
 :Size(size)
 {
-	data.reserve(size.x*size.y*size.z);
+	data.resize(size.x*size.y*size.z);
 }
 
-const int Field::index(const int &i, const int &j, const int &k) const
+Field::Field(int sx, int sy, int sz)
+:Size(sx, sy, sz)
+{
+	data.resize(Size.x*Size.y*Size.z);
+}
+
+const int Field::Index(const int &i, const int &j, const int &k) const
 {
 	return k*Size.x*Size.y + j*Size.x + i;
 }
@@ -14,7 +20,13 @@ const int Field::index(const int &i, const int &j, const int &k) const
 //指定したインデックスの値を返す(代入可能)
 Vector3d& Field::Data(const int &i, const int &j, const int &k)
 {
-	return data[index(i, j, k)];
+	return data[Index(i, j, k)];
+}
+
+//指定したインデックスの値を返す(代入可能)
+Vector3d& Field::Data(const int &index)
+{
+	return data[index];
 }
 
 // 実数のインデックスでは線形補完により値を返す(ReadOnly)
@@ -35,7 +47,7 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 			double cy = (dj == 0 ? (1.0 - dy) : dy);
 			for (int dk = 0; dk < 2; dk++){
 				double cz = (dk == 0 ? (1.0 - dz) : dz);
-				res.add( cx*cy*cz*data[index(i + di, j + dj, k + dk)] );
+				res.add( cx*cy*cz*data[Index(i + di, j + dj, k + dk)] );
 			}
 		}
 	}
@@ -45,27 +57,7 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 // 実数のインデックスでは線形補完により値を返す(ReadOnly)
 Vector3d Field::GetData(const Vector3d &pos) const
 {
-	int i = floor(pos.x);
-	int j = floor(pos.y);
-	int k = floor(pos.z);
-	float dx = pos.x - i;
-	float dy = pos.y - j;
-	float dz = pos.z - k;
-
-	Vector3d res(0, 0, 0);
-	for (int di = 0; di < 2; di++){
-		double cx = (di == 0 ? (1.0 - dx) : dx);
-
-		for (int dj = 0; dj < 2; dj++){
-			double cy = (dj == 0 ? (1.0 - dy) : dy);
-			for (int dk = 0; dk < 2; dk++){
-				double cz = (dk == 0 ? (1.0 - dz) : dz);
-				res.add(cx*cy*cz*data[index(i + di, j + dj, k + dk)]);
-			}
-		}
-	}
-
-	return res;
+	return GetData(pos.x, pos.y, pos.z);
 }
 
 namespace
@@ -120,103 +112,61 @@ namespace
 	}*/
 
 }
-Vector3d Field::rungeKutta(const Vector3d &delta, const double &step)
+
+Vector3d Field::rungeKutta(const Vector3d &p, const double &step)
 {
-	Vector3d del = GetData(delta.x, delta.y, delta.z);
+	Vector3d del = GetData(p.x, p.y, p.z);
 
 	const Vector3d k0 = step * del;
+	del = GetData(p + k0/2.0);
 
-	//xの偏微分
-	del.x = GetData(delta + Vector3d(k0.x, k0.x, k0.x)).x;	// TODO : x成分はstepではないのか？
-	del.y = GetData(delta + Vector3d(k0.y, k0.y, k0.y)).y;
-	del.z = GetData(delta + Vector3d(k0.z, k0.z, k0.z)).z;
 	const Vector3d k1 = step*del;
+	del = GetData(p + k1/2.0);
 
-	del.x = GetData(delta + Vector3d(k1.x, k1.x, k1.x)).x;
-	del.y = GetData(delta + Vector3d(k1.y, k1.y, k1.y)).y;
-	del.z = GetData(delta + Vector3d(k1.z, k1.z, k1.z)).z;
 	Vector3d k2 = step*del;
+	del = GetData(p + k2/2.0);
 
-	del.x = GetData(delta + Vector3d(k2.x, k2.x, k2.x)).x;
-	del.y = GetData(delta + Vector3d(k2.y, k2.y, k2.y)).y;
-	del.z = GetData(delta + Vector3d(k2.z, k2.z, k2.z)).z;
 	Vector3d k3 = step*del;
-
+	
 	return (k0 + 2 * k1 + 2 * k2 + k3) / 6.0;
-
-	/*
-	//printf("runge\n");
-	del = streamline(x, y, z, i);
-	k0 = step*del;
-	//printf("k0:%f\n", k0);
-	del = streamline((x + k0 / 2.0), (y + k0 / 2.0), (z + k0 / 2.0), i);
-	k1 = step*del;
-	//printf("k1:%f\n", k1);
-	del = streamline((x + k1 / 2.0), (y + k1 / 2.0), (z + k1 / 2.0), i);
-	k2 = step*del;
-	//printf("k2:%f\n", k2);
-	del = streamline((x + k2), (y + k2), (z + k2), i);
-	k3 = step*del;
-	//printf("k3:%f\n", k3);
-	return ((k0 + 2 * k1 + 2 * k2 + k3) / 6.0);
-	*/
 }
-void Field::CalcStreamLine(const Vector3d &criticalPoint, const std::vector<Vector3d> &rounds, StreamLine &streamLine)
+
+void Field::CalcStreamLine( const SigmaPlane &sigmaPlane, StreamLine &streamLine)
 {
+	Jacobian jacobian = sigmaPlane.Jacob();
 
-	const double first_len = 0.5;
+	const double first_len = sigmaPlane.Radius;
 	const double len = 0.1;
-	const double step = 0.5;
+	const double step = jacobian.eigenValue[sigmaPlane.Index1()].real() < 0 ? -0.1 : 0.1;
 
-	for (int s = 0; s < rounds.size()-1; s++)
+	Vector3d vec    = sigmaPlane.Vec1();	//面を構成する固有ベクトルの1つ目を取得
+	Vector3d normal = sigmaPlane.Normal();	//面の法線ベクトルを取得 
+	for(int s = 0; s < 19; s++)
 	{
-		Vector3d delta = criticalPoint + rounds[s] * first_len;
-		streamLine.AddPoint(delta);
+		Vector3d v =  vec.rotatedVector(normal, 360.0 / 20.0 * s );
+		v.normalize();
+
+		Vector3d p = sigmaPlane.CPoint() + v * first_len;
+		streamLine.BeginNewLine();
+		streamLine.AddPoint(p);
 		while (true)
 		{
 			const int padding = 5;
-			if (delta.x > Size.x - padding || delta.x < padding ||
-				delta.y > Size.y - padding || delta.y < padding ||
-				delta.z > Size.z - padding || delta.z < padding)
+			if (p.x > Size.x - padding || p.x < padding ||
+				p.y > Size.y - padding || p.y < padding ||
+				p.z > Size.z - padding || p.z < padding)
 				break;
 
-			Vector3d delta2 = rungeKutta(delta, step);
-			delta2.normalize().mul(len);
+			Vector3d delta = rungeKutta(p, step);
+			delta.normalize().mul(len);
 
-			delta.add(delta2);
-			streamLine.AddPoint(delta);
-			//TODO : round間がつながってしまう。
+			p.add(delta);
+			streamLine.AddPoint(p);
 		}
 	}
+}
 
-	/*
-	for (int s = 0; s<round_num - 1; s++){
-		dx1 = cp[t].x + round_cp[t][s].x*(first_len);
-		dy1 = cp[t].y + round_cp[t][s].y*(first_len);
-		dz1 = cp[t].z + round_cp[t][s].z*(first_len);
+void Field::Draw()
+{
 
-		while (true){
-			if (dx1 > sizeX - 5 || dx1 < 5 || dy1 > sizeY - 5 || dy1 < 5 || dz1 > sizeZ - 5 || dz1 < 5)
-				break;
-
-			dx2 = runge_kutta(dx1, dy1, dz1, 1, step);
-			dy2 = runge_kutta(dx1, dy1, dz1, 2, step);
-			dz2 = runge_kutta(dx1, dy1, dz1, 3, step);
-
-			d_size = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
-
-			dx2 = (dx2 / d_size)*len;
-			dy2 = (dy2 / d_size)*len;
-			dz2 = (dz2 / d_size)*len;
-
-			glBegin(GL_LINES);
-			glVertex3f(dx1 - (double)sizeX / 2.0, dy1 - (double)sizeY / 2.0, dz1 - (double)sizeZ / 2.0);
-			glVertex3f((dx1 - (double)sizeX / 2.0) + dx2, (dy1 - (double)sizeY / 2.0) + dy2, (dz1 - (double)sizeZ / 2.0) + dz2);
-			glEnd();
-
-			dx1 += dx2;
-			dy1 += dy2;
-			dz1 += dz2;
-		}
-	}*/
 }

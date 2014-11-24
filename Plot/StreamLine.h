@@ -9,10 +9,11 @@
 //ó¨ê¸
 class StreamLine : public Graphic
 {
-	std::vector<unsigned int> indices;
+	std::vector<unsigned int> vertOfLine;
 public:
 	void Draw();
 	void AddPoint(Vector3d p);
+	void BeginNewLine();
 };
 
 

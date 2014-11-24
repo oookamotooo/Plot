@@ -12,14 +12,23 @@ public:
 		return &instance;
 	}
 
-	void SetWindowSize(const int &width, const int &height);
-	void Move(float x, float y, float z);			//平行移動
-	void Rotate(float theta, float phi);	//回転
-	void Zoom(float delta);					//ズーム
+	void SetWindowSize(const int &width, const int &height);	//ウィンドウサイズの変更
+	void Move(float x, float y, float z);						//平行移動
+	void Rotate(float theta, float phi);						//回転
+	void Zoom(float delta);										//ズーム
 	void SetViewportAndMatrix() const;
 
 	const Vector3d GetPosition() const { return position; }
 	const Vector3d GetLook() const { return look; }
+
+	template<class T>
+	void SetLook( const Vector3<T> &l) 
+	{ 
+		look.set(l.x, l.y, l.z); 
+		calcPosition();
+	} 
+
+	Vector3d ScreenToWorldVector( const float &x, const float &y);
 private:
 	Vector3d position, look;
 	Vector3d up;

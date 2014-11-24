@@ -35,15 +35,20 @@ namespace
 	{
 		return Vector3<T>(v.x.real(), v.y.real(), v.z.real());
 	}
+}
 
-	Vector3<float> ToFloatVector(Vector3d v)
-	{
-		return Vector3<float>(v.x, v.y, v.z);
-	}
+Vector3d SigmaPlane::Vec1() const
+{
+	return CompToReal(jacobian.eigenVector[index1]);
+}
+
+Vector3d SigmaPlane::Vec2() const
+{
+	return CompToReal(jacobian.eigenVector[index2]);
 }
 
 SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
-:jacobian(j), criticalPoint(cp), indexBuffer(0)
+	:jacobian(j), criticalPoint(cp), indexBuffer(0), Radius(5)
 {
 	bool found = false;
 	int a, b;
@@ -61,7 +66,8 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 
 	if (found)
 	{
-
+		index1 = a;
+		index2 = b;
 		//法線ベクトルを計算
 		Vector3< complex<double> > nor = jacobian.eigenVector[a].cross(jacobian.eigenVector[b]);
 
@@ -73,13 +79,13 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 		if (normal.length() < 0.00000001)
 			return;
 
-		vertices.push_back(ToFloatVector(cp));	//クリティカルポイントを保存
+		vertices.push_back(toFloatVector(cp));	//クリティカルポイントを保存
 		//平面を作る固有ベクトルを法線を軸に回転させ,円を作る
 		Vector3d rVec1 = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
 		for (int i = 0; i < 12; i++)
 		{
 			Vector3d p = rVec1.rotatedVector(normal, 360 * i / 12);// rotate(normal, rVec1, 360.0 * i / 12);
-			vertices.push_back(ToFloatVector(p + cp));
+			vertices.push_back(toFloatVector(p + cp));
 		}
 
 		for (int i = 0; i < 12; i++)
@@ -100,9 +106,8 @@ SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))
 void SigmaPlane::Draw()
 {
-	if (vertices.size() <= 1)
+	if (vertices.size() <= 1 || GetVisible() == false)
 	{
-		//cout << "return " << endl;
 		return;
 	}
 
@@ -123,8 +128,8 @@ void SigmaPlane::Draw()
 	for (int i = 0; i < 3; i++)
 	{
 		//実空間に写像
-		auto ev = Radius * ToFloatVector(CompToReal(jacobian.eigenVector[i])).normalize();
-		auto nor = ev.cross(ToFloatVector(Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
+		auto ev = Radius * toFloatVector(CompToReal(jacobian.eigenVector[i])).normalize();
+		auto nor = ev.cross(toFloatVector(Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
 		auto arrow1 = nor + 0.9*ev;
 		auto arrow2 = arrow1 - 2 * nor;
 		glBegin(GL_LINE_STRIP);
@@ -147,4 +152,32 @@ void SigmaPlane::Draw()
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glPopAttrib();
+
+	for( auto it = streamLines.begin(); it != streamLines.end(); it++)
+	{
+		(*it)->Draw();
+	}
+}
+
+bool SigmaPlane::IsHit( const Vector3d &position, const Vector3d direction , double &length)
+{
+	if( !GetVisible() )
+		return false;
+
+	Vector3d dir = criticalPoint - position;
+	//面と反対方向に進んでいる場合はfalse
+	if( direction.dot( dir ) < 0 )
+		return false;
+
+	float n  = normal.dot( dir );
+	float n2 = normal.dot( direction );
+
+	//平面と平行な場合は交わらない
+	if( std::abs(n2) < 0.000000001 )
+		return false;
+
+	Vector3d p = position + direction * n / n2;
+	length = p.distanceTo(position);
+	float distance = p.distanceTo( criticalPoint);
+	return distance < Radius;
 }

@@ -7,7 +7,7 @@
 using namespace std;
 
 Camera::Camera()
-	:theta(0), phi(0), fov(90), radius(20), up(0,1,0), frustumNear(1.0), frustumFar(500.0)
+	:theta(0), phi(0), fov(90), radius(20), up(0,1,0), frustumNear(0.1), frustumFar(500.0)
 {
 	calcPosition();	//初期位置の設定
 }
@@ -53,10 +53,13 @@ void Camera::Zoom(float r)
 void Camera::SetViewportAndMatrix() const
 {
 	glViewport(0, 0, width, height);
-
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	gluPerspective(fov, (double)width / (double)height, frustumNear, frustumFar);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	gluLookAt(
 		position.x, position.y, position.z,
 		look.x,  look.y, look.z, 
@@ -67,6 +70,29 @@ void Camera::SetWindowSize(const int &_width, const int &_height)
 {
 	width  = _width;
 	height = _height;
+}
+
+Vector3d Camera::ScreenToWorldVector( const float &x, const float &y)
+{
+	// -0.5 ~ 0. 5の範囲にスケーリング
+	float screenX = (          x - width/2.0) / width;	
+	float screenY = ( height - y - height/2.0) / height;
+
+	float ratio = 1.0 * width / (float)height;
+
+	float farHeight = 2*frustumFar*tan(0.5 * fov * M_PI / 180.0);
+	float farWidth  = farHeight * ratio;
+
+	Vector3d axisZ = (look - position);
+	axisZ.normalize();
+	Vector3d axisX = axisZ.cross(up);
+	axisX.normalize();
+	Vector3d axisY = axisX.cross(axisZ);
+	axisY.normalize();
+
+	Vector3d direction = axisY*screenY*farHeight + axisX*screenX*farWidth + axisZ*frustumFar;
+	direction.normalize();
+	return direction;
 }
 
 int CameraManager::lastX;

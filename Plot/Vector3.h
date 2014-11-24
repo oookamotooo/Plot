@@ -283,7 +283,21 @@ public:
 		return result;
 	}
 };
+/*
+double ToRad(double degree)
+{
+	static double ToRadian = (1.0/180.0)*M_PI;
 
+	return degree * ToRadian;
+}
+
+double ToDeg(double rad)
+{
+	static double ToDegree = 180.0 / M_PI;
+
+	return rad * ToDegree;
+}
+*/
 template<class T>
 Vector3<float> toFloatVector(const T v)
 {

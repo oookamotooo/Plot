@@ -7,7 +7,7 @@ using namespace std;
 namespace 
 {
 	// 複素数値を3つ分読み込む
-	bool ReadComplexLine(ifstream &stream, complex<double> res[3])
+	inline bool ReadComplexLine(ifstream &stream, complex<double> res[3])
 	{
 		for(int i=0; i<3; i++)
 		{
@@ -22,7 +22,7 @@ namespace
 	}
 
 	// 実数値を3つ分読み込む
-	bool ReadDoubleLine(ifstream &stream, double res[3])
+	inline bool ReadDoubleLine(ifstream &stream, double res[3])
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -120,24 +120,34 @@ void FileManager::ReadCritialPointData(const string fileName, vector<Vector3d> &
 //磁気圏のデータの読み込み.
 void FileManager::ReadFieldData(const string fileName, Field &field)
 {
+	/*
 	ifstream in(fileName);
 	if (!in){
 		cerr << "The file" << fileName << "was not opend" << endl;
 		return;
 	}
-
+	*/
+	FILE *fp = fopen(fileName.c_str(), "r");
 	// X, Y, Zの方向に格納されている.
 	for (int k = 0; k < field.Size.z; k++){
 		for (int j = 0; j < field.Size.y; j++){
 			for (int i = 0; i < field.Size.x; i++){
 				double res[3];
-				ReadDoubleLine(in, res);
-				field.Data(i, j, k) = Vector3d(res[0], res[1], res[2]);
+				/*
+				if( !ReadDoubleLine(in, res) )
+				{
+					cout << "データ数が合いません" << endl;
+					exit(2);
+				}*/
+				fscanf(fp,"%lf %lf %lf", &res[0], &res[1], &res[2]);
+
+				field.Data(i, j, k).set(res[0], res[1], res[2]);
 			}
 		}
 	}
 
-	in.close();
+	fclose(fp);
+	//in.close();
 }
 
 void FileManager::ReadRoundData(const std::string fileName, std::vector<Vector3d> &res)
@@ -155,7 +165,9 @@ void FileManager::ReadRoundData(const std::string fileName, std::vector<Vector3d
 		double buf[3];
 
 		if (!ReadDoubleLine(in, buf))
+		{
 			break;
+		}
 
 		res.push_back(Vector3d(buf[0], buf[1], buf[2]));
 	}
