@@ -17,19 +17,15 @@
 
 #define PI  3.14159265358979323846
 
-vector<SigmaPlane*> sigmaPlanes;
-
 Vector3i size(91, 171, 86);
 
 Field *field;
+vector<StreamLine*> earthLines;
+vector<SigmaPlane*> sigmaPlanes;
 
 void display()
 {
 	Camera::getCamera()->SetViewportAndMatrix();
-	Vector3d plot;	
-	Vector3d cp_disp;
-	Vector3d ya;
-	double ya_size;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -43,6 +39,10 @@ void display()
 
 	// 流線とΣ面の描画
 	for (auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++){
+		(*it)->Draw();
+	}
+
+	for (auto it = earthLines.begin(); it != earthLines.end(); it++){
 		(*it)->Draw();
 	}
 
@@ -119,6 +119,12 @@ void idle()
 	glutPostRedisplay();
 }
 
+ostream& Forming(ostream &s)
+{
+	s << setw(50) << left;
+	return s;
+}
+
 ostream& OK(ostream &s)
 {
 	s << setw(10) << right << "OK";
@@ -127,22 +133,21 @@ ostream& OK(ostream &s)
 
 int main(int argc, char *argv[])
 {
-	int charWidth = 50; //文字幅1
 	//ヤコビアンのデータを読み込み
-	cout << std::setw(charWidth) << left << "ヤコビアンのデータを読み込み";
+	cout << Forming << "ヤコビアンのデータを読み込み";
 	vector<Jacobian> jacobians;	//ヤコビアンを格納する動的配列
 	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
 	cout << OK << endl;
 
 	//クリティカルポイントのデータを読み込み
-	cout << setw(charWidth) << left << "クリティカルポイントの読み込み";
+	cout << Forming << "クリティカルポイントの読み込み";
 	vector<Vector3d> cpoints;	//クリティカルポイントを格納する動的配列
 	FileManager::ReadCritialPointData("cp.txt", cpoints);
 	cout << OK << endl;
 
 	// Σ面を配列に保存
 	// ヤコビアンとクリティカルポイントの数が同じでなければならない
-	cout << setw(charWidth) << left <<  "ヤコビアンとクリティカルポイントからΣ面を生成" ;
+	cout << Forming << "ヤコビアンとクリティカルポイントからΣ面を生成";
 	for (int i = 0; i < cpoints.size(); i++){
 		auto *s = new SigmaPlane(jacobians[i], cpoints[i]);
 
@@ -152,19 +157,36 @@ int main(int argc, char *argv[])
 	cout << OK << endl;
 
 	//フィールドの生成
-	field = GraphicManager::GetGraphic()->MakeField(size);
+	field = GraphicManager::GetGraphic()->MakeField(Vector3i(), size);
 
 	//生成したフィールドにデータを読み込む
-	cout << setw(charWidth) << left << "磁場のベクトルデータの読み込み";
+	cout << Forming << "磁場のベクトルデータの読み込み";
 	FileManager::ReadFieldData("bfield_near_cusp.txt", *field);
 	cout << OK << endl;
 
-	cout << setw(charWidth) << left << "流線の計算";
+	cout << Forming << "流線の計算";
 	for(int i=0; i<sigmaPlanes.size(); i++)
 	{
 		StreamLine *streamLine = new StreamLine();
 		field->CalcStreamLine( *sigmaPlanes[i], *streamLine);
 		sigmaPlanes[i]->AddStreamLine(streamLine);
+	}
+	cout << OK << endl;
+
+	cout << Forming << "地球近辺の流線を計算";
+	//フィールドを基準とした地球の位置
+	//フィールドの外にあるので, ここからずらした位置から流線を求める必要がある
+	Vector3d earth = Vector3d(60.0, 82.0, -13.0);
+
+	//試行錯誤でできた,x成分のオフセット量
+	int dx[4] = { 0, 3, -4, -6 };
+
+	glColor3d(0.0, 1.0, 0.0);
+	for (int l = 0; l < 4; l++){
+		StreamLine *streamLine = new StreamLine();
+		Vector3d start(earth.x + dx[l], earth.y, earth.z + 20);
+		field->CalcStreamLine(start, *streamLine, 0.1, -0.1);
+		earthLines.push_back(streamLine);
 	}
 	cout << OK << endl;
 

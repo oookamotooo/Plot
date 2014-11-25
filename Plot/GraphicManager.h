@@ -23,7 +23,7 @@ public :
 			grid = new GridSpace( Vector3<float>(center.x, center.y, center.z), Vector3<float>(size.x, size.y, size.z), split);
 	}
 
-	Field* const MakeField(const Vector3i &size);
+	Field* const MakeField(const Vector3i &lftBtmNear, const Vector3i &size);
 
 	Field* const GetField() const { return field; }
 private:

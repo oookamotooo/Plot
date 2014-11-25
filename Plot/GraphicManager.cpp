@@ -15,11 +15,11 @@ void GraphicManager::DrawGrid()
 	grid->Draw();
 }
 
-Field* const GraphicManager::MakeField(const Vector3i &size)
+Field* const GraphicManager::MakeField(const Vector3i &lftBtmNear, const Vector3i &size)
 {
 	if( field == NULL)
 	{
-		field = new Field(size);
+		field = new Field(lftBtmNear,size);
 		graphics.push_back(field);
 	} 
 
