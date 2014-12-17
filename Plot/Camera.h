@@ -1,10 +1,14 @@
 ﻿#ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "Vector3.h"
+#include <Eigen/Core>
+using Eigen::Vector3d;
 
 class Camera
 {
+public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 public:
 	static Camera* getCamera()
 	{
@@ -20,11 +24,11 @@ public:
 
 	const Vector3d GetPosition() const { return position; }
 	const Vector3d GetLook() const { return look; }
-
-	template<class T>
-	void SetLook( const Vector3<T> &l) 
+	const Vector3d GetUp() const { return up; }
+	void GetAxis(Vector3d &axisX, Vector3d &axisY, Vector3d &axisZ)const;
+	void SetLook( const Vector3d &l) 
 	{ 
-		look.set(l.x, l.y, l.z); 
+		look = l;
 		calcPosition();
 	} 
 

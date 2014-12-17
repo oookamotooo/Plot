@@ -6,6 +6,10 @@
 #include <algorithm>
 using namespace std;
 
+#include <Eigen/Core>
+#include <Eigen/Geometry> 
+using namespace Eigen;
+
 Camera::Camera()
 	:theta(0), phi(0), fov(90), radius(20), up(0,1,0), frustumNear(0.1), frustumFar(500.0)
 {
@@ -14,22 +18,22 @@ Camera::Camera()
 
 void Camera::calcPosition()
 {
-	position.x = radius * cos(phi) * cos(theta) + look.x;
-	position.y = radius * sin(phi) + look.y;
-	position.z = radius * cos(phi) * sin(theta) + look.z;
+	position.x() = radius * cos(phi) * cos(theta) + look.x();
+	position.y() = radius * sin(phi) + look.y();
+	position.z() = radius * cos(phi) * sin(theta) + look.z();
 }
 
 void Camera::Move(float x, float y, float z)
 {
-	Vector3d axisZ = (look - position).normalize();
-	Vector3d axisX = axisZ.cross(up).normalize();
-	Vector3d axisY = axisX.cross(axisZ).normalize();
-	axisX.mul(x);
-	axisY.mul(y);
-	axisZ.mul(z);
+	Vector3d axisZ = (look - position).normalized();
+	Vector3d axisX = axisZ.cross(up).normalized();
+	Vector3d axisY = axisX.cross(axisZ).normalized();
+	axisX*=x;
+	axisY*=y;
+	axisZ*=z;
+
 	position += axisX + axisY + axisZ;
 	look     += axisX + axisY ;	//z方向はlookに関係ない(回転ではあるけど)
-
 	radius += z;
 }
 
@@ -50,6 +54,18 @@ void Camera::Zoom(float r)
 	calcPosition();
 }
 
+void Camera::GetAxis(Vector3d &axisX, Vector3d &axisY, Vector3d &axisZ)const
+{
+	axisZ = (look - position);
+	axisZ.normalize();
+
+	axisX = axisZ.cross(up);
+	axisX.normalize();
+
+	axisY = axisX.cross(axisZ);
+	axisY.normalize();
+}
+
 void Camera::SetViewportAndMatrix() const
 {
 	glViewport(0, 0, width, height);
@@ -61,9 +77,9 @@ void Camera::SetViewportAndMatrix() const
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(
-		position.x, position.y, position.z,
-		look.x,  look.y, look.z, 
-		up.x, up.y, up.z);
+		position.x(), position.y(), position.z(),
+		look.x(), look.y(), look.z(),
+		up.x(), up.y(), up.z());
 }
 
 void Camera::SetWindowSize(const int &_width, const int &_height)
@@ -85,6 +101,7 @@ Vector3d Camera::ScreenToWorldVector( const float &x, const float &y)
 
 	Vector3d axisZ = (look - position);
 	axisZ.normalize();
+
 	Vector3d axisX = axisZ.cross(up);
 	axisX.normalize();
 	Vector3d axisY = axisX.cross(axisZ);

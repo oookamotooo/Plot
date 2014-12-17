@@ -7,12 +7,20 @@ using namespace std;
 GraphicManager::GraphicManager()
 	:grid(NULL), field(NULL)
 {
-
+	root = new Graphic();
 }
 
-void GraphicManager::DrawGrid()
+void GraphicManager::Draw()
 {
-	grid->Draw();
+	root->Draw();
+}
+
+void GraphicManager::MakeGrid(Vector3f center, Vector3f size, Vector3i split)
+{
+	if (grid == NULL){
+		grid = new GridSpace(center, size, split);
+		AddToRoot(grid);
+	}
 }
 
 Field* const GraphicManager::MakeField(const Vector3i &lftBtmNear, const Vector3i &size)
@@ -20,7 +28,7 @@ Field* const GraphicManager::MakeField(const Vector3i &lftBtmNear, const Vector3
 	if( field == NULL)
 	{
 		field = new Field(lftBtmNear,size);
-		graphics.push_back(field);
+		AddToRoot(field);
 	} 
 
 	return field;

@@ -14,23 +14,22 @@ public :
 	}
 
 	static void Initialize(int windowX, int windowY, int argc, char** argv);
-	void DrawGrid();
+	void Draw();
 
-	template<class T, typename S>
-	void MakeGrid(Vector3<T> center, Vector3<S> size, Vector3i split)
+	void MakeGrid(Vector3f center, Vector3f size, Vector3i split);
+	Field* const MakeField(const Vector3i &lftBtmNear, const Vector3i &size);
+	Field* const GetField() const { return field; }
+
+	void AddToRoot(Graphic *child)
 	{
-		if(grid == NULL)
-			grid = new GridSpace( Vector3<float>(center.x, center.y, center.z), Vector3<float>(size.x, size.y, size.z), split);
+		root->AddChild(child);
 	}
 
-	Field* const MakeField(const Vector3i &lftBtmNear, const Vector3i &size);
-
-	Field* const GetField() const { return field; }
 private:
 	GridSpace *grid;
 	Field *field;
 	GraphicManager();
-
+	Graphic *root;
 	std::vector<Graphic*> graphics; 
 };
 

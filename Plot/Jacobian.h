@@ -3,19 +3,20 @@
 
 #include <complex>
 #include <iostream>
-#include "Vector3.h"
-
+#include <Eigen/Core>
 //ヤコビアンの情報を格納するクラス.
+
 class Jacobian
 {
-public :
+public:
 	std::complex<double> eigenValue[3];
-	Vector3< std::complex<double> >eigenVector[3];
-	Jacobian( std::complex<double> _eigenValue[3], Vector3<std::complex<double>> _eigenVector[3]);
+	Eigen::Vector3cd eigenVector[3];
+	Jacobian(std::complex<double> _eigenValue[3], Eigen::Vector3cd _eigenVector[3]);
+	Jacobian(Eigen::Matrix3d jacobMatrix);
 	Jacobian(){}
-
-
 	friend std::ostream& operator<<(std::ostream& stream, const Jacobian &obj);
+public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 #endif

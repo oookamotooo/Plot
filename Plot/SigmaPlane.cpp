@@ -4,36 +4,25 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Camera.h"
-
+using Eigen::Vector3d;
+using Eigen::Vector3cd;
 using namespace std;
 
+using namespace Eigen;
+#include <Eigen/Geometry>
 namespace
 {
-	template <class S>
-	static float CLength(Vector3<complex<S>> v)
+	Vector3d CompToReal(const Vector3cd &v)
 	{
-		return sqrt(norm(v.x) + norm(v.y) + norm(v.z));
+		return Vector3d(v.x().real(), v.y().real(), v.z().real());
 	}
 
-	Vector3d rotate(Vector3d axis, Vector3d vec, double alpha){
-		Vector3d result;
-		double theta;
-
-		theta = alpha * M_PI / 180.0;
-
-		double C = cos(theta);
-		double S = sin(theta);
-		result.x = ((axis.x*axis.x*(1 - C) + C)*vec.x + (axis.x*axis.y*(1 - C) - axis.z*S)*vec.y + (axis.z*axis.x*(1 - C) + axis.y*S)*vec.z);
-		result.y = ((axis.x*axis.y*(1 - C) + axis.z*S)*vec.x + (axis.y*axis.y*(1 - C) + C)*vec.y + (axis.y*axis.z*(1 - C) - axis.x*S)*vec.z);
-		result.z = ((axis.z*axis.x*(1 - C) - axis.y*S)*vec.x + (axis.y*axis.z*(1 - C) + axis.x*S)*vec.y + (axis.z*axis.z*(1 - C) + C)*vec.z);
-
-		return result;
-	}
-
-	template<class T>
-	Vector3<T> CompToReal(Vector3<complex<T>> v)
-	{
-		return Vector3<T>(v.x.real(), v.y.real(), v.z.real());
+	//複素数成分を持っているか
+	bool HasComplexElement(const Vector3cd &c){
+		double error = 0.000001;
+		return std::abs(c.x().imag()) > error ||
+			   std::abs(c.y().imag()) > error ||
+			   std::abs(c.z().imag()) > error;
 	}
 }
 
@@ -47,60 +36,95 @@ Vector3d SigmaPlane::Vec2() const
 	return CompToReal(jacobian.eigenVector[index2]);
 }
 
-SigmaPlane::SigmaPlane(Jacobian j, Vector3d cp)
-	:jacobian(j), criticalPoint(cp), indexBuffer(0), Radius(5)
+void SigmaPlane::GetRoundPoints(std::vector<Vector3d> &points) const
 {
-	bool found = false;
-	int a, b;
-	for (a = 0; a<3; a++)
+	points.clear();
+	Vector3d vec = vec1.normalized() * Radius;
+	for (int i = 0; i < PolygonSize; i++)
 	{
-		b = (a + 1) % 3;
+		auto rot3d = AngleAxisd(2.0 * M_PI * i / (double)PolygonSize, normal);
+		Vector3d p = (rot3d * vec);
+		points.push_back(p + criticalPoint);
+	}
+}
 
-		//3つの固有ベクトルのうち, 実部が同符号のものを探す
-		if (jacobian.eigenValue[a].real() * jacobian.eigenValue[b].real() > 0)
+
+SigmaPlane::SigmaPlane(const Jacobian &j, const Vector3d &cp)
+	:jacobian(j), criticalPoint(cp), indexBuffer(0)
+{
+	MakePlane(j, cp);
+}
+
+void SigmaPlane::MakePlane(const Jacobian &jacob, const Eigen::Vector3d &cp)
+{
+	criticalPoint = cp;
+	jacobian = jacob;
+
+	//3つの固有値のうち, 実部が同符号のものを探す
+	for (index1 = 0; index1<3; index1++)
+	{
+		index2 = (index1 + 1) % 3;
+
+		if (jacobian.eigenValue[index1].real() * jacobian.eigenValue[index2].real() > 0)
 		{
-			found = true;
 			break;
 		}
 	}
 
-	if (found)
-	{
-		index1 = a;
-		index2 = b;
-		//法線ベクトルを計算
-		Vector3< complex<double> > nor = jacobian.eigenVector[a].cross(jacobian.eigenVector[b]);
+	//法線ベクトルを計算
+	//Vector3cd nor = jacobian.eigenVector[index1].cross(jacobian.eigenVector[index2]);
 
-		//複素ベクトルを実ベクトルへ変換
-		//ここでは暫定的に,虚部を切り捨てることにする.
-		normal = CompToReal(nor).normalize();
-
-		//法線が0の場合平面ができない
-		if (normal.length() < 0.00000001)
-			return;
-
-		vertices.push_back(toFloatVector(cp));	//クリティカルポイントを保存
-		//平面を作る固有ベクトルを法線を軸に回転させ,円を作る
-		Vector3d rVec1 = CompToReal(jacobian.eigenVector[a]).normalize() * Radius;
-		for (int i = 0; i < 12; i++)
-		{
-			Vector3d p = rVec1.rotatedVector(normal, 360 * i / 12);// rotate(normal, rVec1, 360.0 * i / 12);
-			vertices.push_back(toFloatVector(p + cp));
-		}
-
-		for (int i = 0; i < 12; i++)
-		{
-			indices.push_back(0);
-			indices.push_back(i + 1);
-			indices.push_back(i + 1);
-			indices.push_back( i == 11 ? 1 : i+2 );
-		}
+	if (HasComplexElement(jacobian.eigenVector[index1])){
+		vec1 = CompToReal(0.5 * (jacobian.eigenVector[index1] + jacobian.eigenVector[index2]));
+		vec2 = CompToReal(complex<double>(0,-0.5)*(jacobian.eigenVector[index1] - jacobian.eigenVector[index2]));
 	}
-	else
-	{
-		//実部が同符号の物が見つからなかった場合
+	else{
+		vec1 = CompToReal(jacobian.eigenVector[index1]);
+		vec2 = CompToReal(jacobian.eigenVector[index2]);
 	}
 
+	//複素ベクトルを実ベクトルへ変換
+	//ここでは暫定的に,虚部を切り捨てることにする.
+	normal = vec1.cross(vec2);
+	//法線が0の場合平面ができない
+	if (normal.isZero()){
+		return;
+	}
+
+	normal.normalize();
+
+	std::vector<Vector3d> roundPoints;
+
+	const int VertexSize = PolygonSize + 1;
+	const int IndexSize = PolygonSize * 4;
+	if (vertices.size() != VertexSize)
+		vertices.resize(VertexSize);
+
+	if (indices.size() != IndexSize)
+		indices.resize(IndexSize);
+
+	vertices[0] = cp.cast<float>();	//クリティカルポイントを保存
+	GetRoundPoints(roundPoints);
+	for (int i = 0; i < roundPoints.size(); i++){
+		vertices[i+1] = roundPoints[i].cast<float>();
+
+		indices[4 * i] = 0;
+		indices[4 * i + 1] = i + 1;
+		indices[4 * i + 2] = i + 1;
+		indices[4 * i + 3] = i == PolygonSize - 1 ? 1 : i + 2;
+	}
+}
+
+void SigmaPlane::DebugMove(const Jacobian &j, const Eigen::Vector3d &cp)
+{
+	MakePlane(j, cp);
+	//すでにバッファが作られているなら変更
+	if (buffer){
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertices.size() * sizeof(Vector3f)), vertices[0].data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	cout << "New CP " << criticalPoint.x() << "," << criticalPoint.y() << "," << criticalPoint.z() << endl;
 }
 
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))
@@ -111,7 +135,8 @@ void SigmaPlane::Draw()
 		return;
 	}
 
-	Graphic::Draw();	//バインドしたかの確認
+	if (!buffer)
+		genVertexBuffer();
 
 	if ( indexBuffer == 0 )
 	{
@@ -128,16 +153,16 @@ void SigmaPlane::Draw()
 	for (int i = 0; i < 3; i++)
 	{
 		//実空間に写像
-		auto ev = Radius * toFloatVector(CompToReal(jacobian.eigenVector[i])).normalize();
-		auto nor = ev.cross(toFloatVector(Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition())).normalize() * 0.1 * Radius;
+		auto ev = Radius * CompToReal(jacobian.eigenVector[i]).normalized();
+		auto nor = ev.cross( Camera::getCamera()->GetLook() - Camera::getCamera()->GetPosition()).normalized() * 0.1 * Radius;
 		auto arrow1 = nor + 0.9*ev;
 		auto arrow2 = arrow1 - 2 * nor;
 		glBegin(GL_LINE_STRIP);
-		glVertex3d(criticalPoint.x, criticalPoint.y, criticalPoint.z);
-		glVertex3d(criticalPoint.x + ev.x, criticalPoint.y + ev.y, criticalPoint.z + ev.z);
-		glVertex3d(criticalPoint.x + arrow1.x, criticalPoint.y + arrow1.y, criticalPoint.z + arrow1.z);
-		glVertex3d(criticalPoint.x + arrow2.x, criticalPoint.y + arrow2.y, criticalPoint.z + arrow2.z);
-		glVertex3d(criticalPoint.x + ev.x, criticalPoint.y + ev.y, criticalPoint.z + ev.z);
+		glVertex3d(criticalPoint.x(), criticalPoint.y(), criticalPoint.z());
+		glVertex3d(criticalPoint.x() + ev.x(), criticalPoint.y() + ev.y(), criticalPoint.z() + ev.z());
+		glVertex3d(criticalPoint.x() + arrow1.x(), criticalPoint.y() + arrow1.y(), criticalPoint.z() + arrow1.z());
+		glVertex3d(criticalPoint.x() + arrow2.x(), criticalPoint.y() + arrow2.y(), criticalPoint.z() + arrow2.z());
+		glVertex3d(criticalPoint.x() + ev.x(), criticalPoint.y() + ev.y(), criticalPoint.z() + ev.z());
 		glEnd();
 	}
 
@@ -153,10 +178,7 @@ void SigmaPlane::Draw()
 
 	glPopAttrib();
 
-	for( auto it = streamLines.begin(); it != streamLines.end(); it++)
-	{
-		(*it)->Draw();
-	}
+	Graphic::Draw();	//子を描画
 }
 
 bool SigmaPlane::IsHit( const Vector3d &position, const Vector3d direction , double &length)
@@ -177,7 +199,7 @@ bool SigmaPlane::IsHit( const Vector3d &position, const Vector3d direction , dou
 		return false;
 
 	Vector3d p = position + direction * n / n2;
-	length = p.distanceTo(position);
-	float distance = p.distanceTo( criticalPoint);
+	length = (p-position).norm();
+	float distance = (p-criticalPoint).norm();
 	return distance < Radius;
 }

@@ -3,9 +3,10 @@
 #include <complex>
 #include <string>
 #include "Jacobian.h"
-#include "Vector3.h"
 #include "Field.h"
 #include <vector>
+
+
 class FileManager
 {
 public:
@@ -28,14 +29,15 @@ public:
 	読み込み結果はresに格納される
 	*/ 
 	static void ReadJacobianData(const std::string fileName, std::vector<Jacobian> &res);
+	static void WriteSigmaPlaneData(const std::string fileName, const std::vector<SigmaPlane*> &sigmas);
+	static void ReadSigmaPlaneData(const std::string fileName, std::vector<SigmaPlane*> &sigmas);
 
-	static void ReadCritialPointData(const std::string fileName, std::vector<Vector3d> &res);
+	static void ReadCriticalPointData(const std::string fileName, std::vector<Vector3d, Eigen::aligned_allocator<Vector3d>> &res);
 
-	static void ReadRoundData(const std::string fileName, std::vector<Vector3d> &res);
 	//磁気圏のデータを読み込む
 	// size = 領域のサイズ
 	// res 値の格納するvector配列
-	static void ReadFieldData(const std::string fileName, Field &field);
+	static void ReadFieldData(const std::string fileName, Field *field);
 private:
 	static bool readJacobian(std::ifstream &stream, Jacobian &res);
 };
