@@ -29,6 +29,8 @@ vector<StreamLine*> earthLines;
 vector<SigmaPlane*> sigmaPlanes;
 vector<Eigen::Vector3i> red, green, blue;
 
+void Adjastment(SigmaPlane *s);
+
 void display()
 {
 	Camera::getCamera()->SetViewportAndMatrix();
@@ -87,9 +89,7 @@ void SpecialKeyboard(int key, int x, int y)
 	{
 		field->PlaneBack();
 	}
-
 }
-
 
 int hitted = -1;	//マウスがドラッグしているΣ面の番号
 Eigen::Vector2i lastPos = Eigen::Vector2i::Zero();	//マウスの位置
@@ -124,6 +124,27 @@ void KeyboardPress(unsigned char key, int x, int y)
 			hitted = -1;
 		}
 		break;
+	case '1':
+	{
+		auto camera = Camera::getCamera();
+		camera->SetLook((field->Size/2).cast<double>());
+		camera->SetPoistion(Vector3d(0, field->Size.y() / 2, field->Size.z() / 2));
+		break;
+	}
+	case '2':
+	{
+		auto camera = Camera::getCamera();
+		camera->SetLook((field->Size / 2).cast<double>());
+		camera->SetPoistion(Vector3d(field->Size.x() / 2, field->Size.y(), field->Size.z() / 2));
+		break;
+	}
+	case '3':
+	{
+		auto camera = Camera::getCamera();
+		camera->SetLook((field->Size / 2).cast<double>());
+		camera->SetPoistion(Vector3d(field->Size.x()/2, field->Size.y() / 2, 0));
+		break;
+	}
 	}
 }
 
@@ -175,7 +196,7 @@ void MousePress(int button, int state, int x, int y)
 	if( state == GLUT_DOWN ){
 		Vector3d dir = Camera::getCamera()->ScreenToWorldVector(x, y);
 		double minLength = -1;
-		for( int i=0; i< sigmaPlanes.size(); i++)
+		for(unsigned int i=0; i< sigmaPlanes.size(); i++)
 		{
 			SigmaPlane *s = sigmaPlanes[i];
 			double length;
@@ -196,6 +217,10 @@ void MousePress(int button, int state, int x, int y)
 			sigmaPlanes[hitted]->SetVisible(false);
 			hitted = -1;
 			return;
+		}
+
+		if (keyPressMap['r']){
+			Adjastment(sigmaPlanes[hitted]);
 		}
 	}
 }
@@ -224,48 +249,8 @@ ostream& Forming(ostream &s)
 
 ostream& OK(ostream &s)
 {
-	s << setw(4) << right << "OK";
+	s << right << "OK";
 	return s;
-}
-
-void TestEigen()
-{
-	Eigen::Matrix2d a;
-	a << 1, 2, -2, 1;
-	Eigen::Matrix2cd b = a.cast<complex<double>>();
-	cout << b << endl;
-	Eigen::SelfAdjointEigenSolver<Eigen::Matrix2cd> es(b);
-	if (es.info() != Eigen::Success)
-		cout << "Failed" << endl;
-	else
-	{
-		cout << "Success " << endl;
-		cout << es.eigenvalues()[0] << endl;
-	}
-
-	/*
-	Eigen::Vector3cd a(complex<double>(1, 1), complex<double>(3, 3), complex<double>(2, 2));
-
-	Eigen::Matrix3d X = Eigen::Matrix3d::Zero();
-
-	X << -3, -1, -1, -1, 1, -1, -1, -1, 3;
-
-	cout << X << endl;
-
-	Eigen::Matrix2f A;
-	A << 1, 2, 2, 3;
-	Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> solv(A);
-
-	cout << solv.eigenvalues() << endl;
-	cout << solv.eigenvectors() << endl;
-	Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> es(X);
-
-	if (es.info() != Eigen::Success)
-		cout << "Failed" << endl;
-	cout << "Value" << endl;
-	cout << es.eigenvalues() << endl;
-	cout << "Vectior" << endl;
-	cout << es.eigenvectors() << endl;*/
 }
 
 int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
@@ -276,12 +261,13 @@ int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
 	Vector3d n = sigmaPlane->Normal().normalized();
 
 	bool reverse = sigmaPlane->Jacob().eigenValue[sigmaPlane->Index1()].real() < 0;
-	const double step = 0.02;
+	const double step = reverse ? -0.1 : 0.1;
 	move = Vector3d::Zero();
 	int cnt = 0;
 	for (auto it = roundPoints.begin(); it != roundPoints.end(); it++){
 		auto dir = (*it) - cp;				//中心から周りの点への方向ベクトル
-		auto vec = field->GetData((*it)).normalized();	//周りの点上のベクトル
+		auto p = field->StreamPoint((*it), 10, step);
+		auto vec = field->GetData(p).normalized();	//周りの点上のベクトル
 
 		//Σ面へ写像
 		auto proj_vec = vec - vec.dot(n)*n;
@@ -291,14 +277,14 @@ int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
 		//とりあえずはOKとする.
 		if (proj_vec.norm() < error){
 			cnt++;
-			move -= vec;
+			move -= vec*step;
 			continue;
 		}
 
 		//写像後のベクトルが放射状にのびていない
 		//すこしずらす
 		double dot = proj_vec.dot(dir);
-		if( (reverse && dot > 0) || (!reverse && dot < 0)){
+		if( dot*step < 0){
 			move -= vec*step;
 			cout << dir.transpose() << "   " << proj_vec.transpose() << endl;
 			cnt++;
@@ -307,11 +293,8 @@ int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
 	return cnt;
 }
 
-void Adjastment()
+void Adjastment(SigmaPlane *s)
 {
-	SigmaPlane *s = sigmaPlanes[0];
-
-	//最大30回調整を行う.
 	for (;true;){
 		Vector3d move = Vector3d::Zero();
 		int cnt = SearchSigmaRound(s, move);
@@ -327,27 +310,33 @@ void Adjastment()
 
 		s->DebugMove(j, newCp);
 		cout << newCp.transpose() << endl;
-		//cout << field->GetData(newCp).norm() << endl;
 	}
 }
+
+//Σ面のデータを読み込む
 void ReadSigmaData()
 {
 	cout << Forming << "Σ面のデータを読み込み";
-	FileManager::ReadSigmaPlaneData("SigmaPlanes.txt", sigmaPlanes);
+	FileManager::ReadSigmaPlaneData("local_500eigen.txt", sigmaPlanes);
+	cout << OK << endl;
+
+	cout << Forming << "ヤコビ行列の固有値固有ベクトル";
+	for (auto it = sigmaPlanes.begin(); it != sigmaPlanes.end(); it++){
+		cout << (*it)->Jacob() << endl;
+	}
 	cout << OK << endl;
 }
 
+//Σ面のデータを計算する. 時間かかる
 void CalcSigmaData()
 {
-	cout << Forming << "クリティカルポイントの探索";
 	vector<Vector3d> criticalPoints;
+	cout << Forming << "クリティカルポイントの探索";
 	field->SearchCP(criticalPoints);
 	cout << OK << endl;
 
+	cout << Forming << "Σ面を計算中";
 	for (auto it = criticalPoints.begin(); it != criticalPoints.end(); it++){
-		cout << (*it).x() << "," << (*it).y() << "," << (*it).z() << endl;
-		cout << field->GetData(*it) << endl;
-
 		Eigen::Matrix3d jacob;
 		field->GetJacobiMatrix((*it), jacob);
 		Eigen::SelfAdjointEigenSolver<Eigen::Matrix3cd> es(jacob.cast<complex<double>>());
@@ -364,17 +353,23 @@ void CalcSigmaData()
 
 		if (s->HasPlane()){
 			sigmaPlanes.push_back(s);
-			cout << "Sigma" << endl;
+		}
+		else{
+			delete s;
 		}
 	}
+	cout << OK << endl;
+
 	cout << Forming << "Σ面のデータを保存中";
 	FileManager::WriteSigmaPlaneData("SigmaPlanes.txt", sigmaPlanes);
 	cout << OK << endl;;
 }
 
+#include "Test.h"
 int main(int argc, char *argv[])
 {
-	TestEigen(); //Eigenライブラリのテスト用
+	//Test::VectorTest();
+	//Test::EigenTest();
 
 	//フィールドの生成
 	field = GraphicManager::GetGraphic()->MakeField(Vector3i(), size);
@@ -396,6 +391,7 @@ int main(int argc, char *argv[])
 	field->GetJacobiMatrix(Vector3d(57.052, 75.082, 54.968), jacob);
 	cout << jacob << endl;
 	*/
+	/*
 	for (int i = 0; i < field->Size.x()-1; i++){
 		for (int j = 0; j < field->Size.y()-1; j++){
 			for (int k = 0; k < field->Size.z()-1; k++){
@@ -419,6 +415,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	*/
 	//古いタイプの読み込み方法
 	/*
 	//ヤコビアンのデータを読み込み
@@ -445,7 +442,7 @@ int main(int argc, char *argv[])
 	*/
 
 	cout << Forming << "流線の計算";
-	for(int i=0; i<sigmaPlanes.size(); i++)
+	for(unsigned int i=0; i<sigmaPlanes.size(); i++)
 	{
 		StreamLine *streamLine = new StreamLine();
 		field->CalcStreamLine( *sigmaPlanes[i], *streamLine);

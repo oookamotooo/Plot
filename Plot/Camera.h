@@ -26,12 +26,9 @@ public:
 	const Vector3d GetLook() const { return look; }
 	const Vector3d GetUp() const { return up; }
 	void GetAxis(Vector3d &axisX, Vector3d &axisY, Vector3d &axisZ)const;
-	void SetLook( const Vector3d &l) 
-	{ 
-		look = l;
-		calcPosition();
-	} 
-
+	const float GetRadius() const{ return radius; }
+	void SetLook(const Vector3d &l);
+	void SetPoistion(const Vector3d &p);
 	Vector3d ScreenToWorldVector( const float &x, const float &y);
 private:
 	Vector3d position, look;
@@ -45,6 +42,7 @@ private:
 	Camera(const Camera &other);
 
 	void calcPosition();	//位置更新
+	void calcAngle();		
 };
 
 class CameraManager
@@ -56,7 +54,7 @@ public:
 
 private:
 	static int lastX, lastY;
-	static const unsigned char upKey = 'w', downKey = 's', leftKey = 'a', rightKey='d'; 
+	static const unsigned char upKey = 'w', downKey = 's', leftKey = 'a', rightKey = 'd', forwardKey = 'z', backwardKey = 'c';
 	static const unsigned char zoomInKey = 'q', zoomOutKey = 'e';
 };
 

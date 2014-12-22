@@ -6,7 +6,7 @@ using std::cout;
 using std::endl;
 
 Field::Field(Vector3i lftBtmNear, Vector3i size)
-	:Size(size), LftBtmNear(lftBtmNear)
+	:Size(size), LftBtmNear(lftBtmNear), Delta(1, size.x(), size.x()*size.y())
 {
 	data.resize(size.x()*size.y()*size.z());
 
@@ -38,21 +38,37 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 	int i = floor(x);
 	int j = floor(y);
 	int k = floor(z);
-	float dx = x - i;
-	float dy = y - j;
-	float dz = z - k;
+	double dx = x - i;
+	double dy = y - j;
+	double dz = z - k;
 		
 	Vector3d res(0, 0, 0);
+	const int index = Index(i, j, k);
+
+	res += (1 - dx)*(1 - dy)*(1 - dz)* data[index];
+	res += (1 - dx)*     dy *(1 - dz)* data[index + Delta.y()];
+	res += (1 - dx)*(1 - dy)*     dz * data[index + Delta.z()];
+	res += (1 - dx)*     dy *     dz * data[index + Delta.y() + Delta.z()];
+	res +=      dx *(1 - dy)*(1 - dz)* data[index + Delta.x()];
+	res +=      dx *     dy *(1 - dz)* data[index + Delta.x() + Delta.y()];
+	res +=      dx *(1 - dy)*     dz * data[index + Delta.x() + Delta.z()];
+	res +=      dx *     dy *     dz * data[index + Delta.x() + Delta.y() + Delta.z()];
+	//forループによる展開は時間がかかりそうなのでやめる.
+		/*
 	for (int di = 0; di < 2; di++){
 		double cx = (di == 0 ? (1.0 - dx) : dx);
+
+		int deltaI = (di == 0 ? 0 : Delta.x());
+
 		for (int dj = 0; dj < 2; dj++){
 			double cy = (dj == 0 ? (1.0 - dy) : dy);
+
 			for (int dk = 0; dk < 2; dk++){
 				double cz = (dk == 0 ? (1.0 - dz) : dz);
 				res +=  cx*cy*cz*data[Index(i + di, j + dj, k + dk)];
 			}
 		}
-	}
+	}*/
 
 	return res;
 }
@@ -129,11 +145,29 @@ void Field::CalcStreamLine(Vector3d p, StreamLine &streamLine, const double len,
 	}
 }
 
+Vector3d Field::StreamPoint(const Vector3d &initialPoint, const int n, const double step, const double len)
+{
+	Vector3d p = initialPoint;
+	for (int i = 0; i < n; i++){
+		const int padding = 5;
+		if (p.x() > Size.x() - padding || p.x() < padding ||
+			p.y() > Size.y() - padding || p.y() < padding ||
+			p.z() > Size.z() - padding || p.z() < padding)
+			break;
+
+		Vector3d delta = rungeKutta(p, step);
+
+		delta.normalize();
+		p += delta*len;
+	}
+
+	return p;
+}
 void Field::DrawGrid(Vector3i lbn, Vector3i size, Vector3f color){
 	glPushAttrib(GL_COLOR);
 	glColor3f(color.x(), color.y(), color.z());
-	for (int j = 0; j < 2; j++){
-		int dy = j == 0 ? 0 : size.y();
+	for (unsigned int j = 0; j < 2; j++){
+		float dy = j == 0 ? 0 : size.y();
 		glBegin(GL_LINE_LOOP);
 		glVertex3f(lbn.x(), lbn.y() + dy, lbn.z());
 		glVertex3f(lbn.x() + size.x(), lbn.y() + dy, lbn.z());
@@ -141,7 +175,7 @@ void Field::DrawGrid(Vector3i lbn, Vector3i size, Vector3f color){
 		glVertex3f(lbn.x(), lbn.y() + dy, lbn.z() + size.z());
 		glEnd();
 
-		int dx = j == 0 ? 0 : size.y();
+		float dx = j == 0 ? 0 : size.y();
 		glBegin(GL_LINE_LOOP);
 		glVertex3f(lbn.x() + dx, lbn.y() + 0, lbn.z());
 		glVertex3f(lbn.x() + dx, lbn.y() + size.y(), lbn.z());
@@ -184,7 +218,7 @@ void Field::MakeVertices()
 			for (int k = 0; k < Size.z(); k++){
 				int index = (j*Size.z() + k)*NumOfVertOfArrow;
 				int i = planeNo;
-				Vector3f gridPoint(i, j, k);
+				Vector3f gridPoint(1.0f*i, 1.0f*j, 1.0f*k);
 				Vector3f data = Data(i, j, k).cast<float>();
 				Vector3f dir = data.squaredNorm() <= limitLength ? data : data.normalized();
 				planes[planeKinds][index]  = gridPoint;
@@ -345,18 +379,9 @@ void Field::GetJacobiMatrix(const int &i, const int &j, const int &k, Eigen::Mat
 void Field::GetJacobiMatrix(const Vector3d &p, Eigen::Matrix3d &mat)
 {
 	mat = Eigen::Matrix3d::Zero();
-	/*
-	Vector3d dx = 0.5*(GetData(p.x() + 0.5, p.y(), p.z()) - GetData(p.x() - 0.5, p.y(), p.z()));
-	Vector3d dy = 0.5*(GetData(p.x(), p.y() + 0.5, p.z()) - GetData(p.x(), p.y() - 0.5, p.z()));
-	Vector3d dz = 0.5*(GetData(p.x(), p.y(), p.z() + 0.5) - GetData(p.x(), p.y(), p.z() - 0.5));
-
-	mat.row(0) << dx.transpose();	//1行目はx方向微分
-	mat.row(1) << dy.transpose();	//2行目はy
-	mat.row(2) << dz.transpose();	//3行目はz
-	*/
 	
 	//切り捨てた座標(グリッドの左下前の座標)
-	Vector3i index(std::floor(p.x()), std::floor(p.y()), std::floor(p.z()));
+	Vector3i index((int)std::floor(p.x()), (int)std::floor(p.y()), (int)std::floor(p.z()));
 
 	//index座標からの距離
 	Vector3d c = p - index.cast<double>();

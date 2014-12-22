@@ -23,6 +23,34 @@ void Camera::calcPosition()
 	position.z() = radius * cos(phi) * sin(theta) + look.z();
 }
 
+void Camera::SetLook(const Vector3d &l)
+{
+	look = l;
+	calcAngle();
+}
+
+void Camera::SetPoistion(const Vector3d &p)
+{
+	position = p;
+	calcAngle();
+}
+
+void Camera::calcAngle()
+{
+	auto d = position - look;
+	radius = d.norm();
+
+	double r = std::sqrt(d.x()*d.x() + d.z()*d.z());
+	if (r == 0){
+		phi = d.y() > 0 ? M_PI / 2.0 - 0.001 : -M_PI / 2.0 + 0.001;
+		calcPosition();
+	}
+	else{
+		theta = d.z() > 0 ? std::acos(d.x() / r) : -std::acos(d.x() / r) + 2 * M_PI;
+		phi = std::asin(d.y() / radius);
+	}
+}
+
 void Camera::Move(float x, float y, float z)
 {
 	Vector3d axisZ = (look - position).normalized();
@@ -33,15 +61,18 @@ void Camera::Move(float x, float y, float z)
 	axisZ*=z;
 
 	position += axisX + axisY + axisZ;
-	look     += axisX + axisY ;	//z方向はlookに関係ない(回転ではあるけど)
-	radius += z;
+	look     += axisX + axisY + axisZ;	//z方向はlookに関係ない(回転ではあるけど)
+	calcAngle();
 }
 
 void Camera::Rotate(float _theta, float _phi)
 {
 	theta += _theta;
-	if (theta > 2*M_PI) theta -= 2*M_PI;
-	if (theta < 0) theta += 2*M_PI;
+	if (theta > 2*M_PI) 
+		theta -= 2*M_PI;
+
+	if (theta < 0) 
+		theta += 2*M_PI;
 
 	phi   = std::min( M_PI_2 - 0.0001f, std::max( -M_PI_2 + 0.0001f, 1.0*phi + _phi));
 	
@@ -50,7 +81,7 @@ void Camera::Rotate(float _theta, float _phi)
 
 void Camera::Zoom(float r)
 {
-	radius = std::max(1.0f, std::min(150.0f, radius + r));
+	radius += r;// std::max(1.0f, std::min(150.0f, radius + r));
 	calcPosition();
 }
 
@@ -138,6 +169,12 @@ void CameraManager::Keyboard(unsigned char key, int x, int y)
   case zoomOutKey:
 	  d_zoom -= 1.0;
 	  break;
+  case forwardKey:
+	  Camera::getCamera()->Move(0, 0, 1);
+	  break;
+  case backwardKey:
+	  Camera::getCamera()->Move(0, 0, -1);
+	  break; 
   default:
     break;
   }

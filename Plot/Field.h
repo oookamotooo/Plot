@@ -15,7 +15,7 @@ class Field : public Graphic
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
-	const Vector3i Size, LftBtmNear;
+	const Vector3i Size, LftBtmNear, Delta;
 	Field(Vector3i center, Vector3i size);
 
 	//フィールドのデータを取得(代入可能)
@@ -32,11 +32,15 @@ public:
 
 	//ある点から出る流線を計算する.
 	void CalcStreamLine(Vector3d start, StreamLine &streamLine, const double len = 0.1, const double step = 0.5);
+
+	//ある点から流線を流したnステップ後の位置を取得する.
+	// step 流入 or 流出を含めたルンゲクッタ法に用いる係数, len = 次の線までの長さ
+	Vector3d StreamPoint(const Vector3d &initialPoint, const int n, const double step = 0.5, const double len = 0.1);
+
 	void Draw();
 
 	//クリティカルポイントを探す
 	void SearchCP(std::vector<Vector3d> &criticalPoints);
-
 
 	enum PlaneKinds{
 		XPlane,
@@ -59,11 +63,12 @@ public:
 	void DrawGrid(Vector3i lbn, Vector3i size = Vector3i(1, 1, 1), Vector3f color = Vector3f(1, 0, 0));
 
 	bool InRegion(const double &x, const double &y, const double &z) const;
-private:
-	std::vector<Vector3d, Eigen::aligned_allocator<Vector3d> > data;
 
 	//ルンゲクッタ法
 	Vector3d rungeKutta(const Vector3d &delta, const double &step);
+
+private:
+	std::vector<Vector3d, Eigen::aligned_allocator<Vector3d> > data;
 
 	//グリッド内を探す.
 	bool SubGridSearch(const Vector3d grid[2][2][2], Vector3d &delta);
@@ -79,7 +84,8 @@ private:
 
 //インライン化するためにヘッダに記述
 const int Field::Index(const int &i, const int &j, const int &k) const{
-	return k*Size.x()*Size.y() + j*Size.x() + i;
+	return k*Delta.z() + j*Delta.y() + i;
+	//return k*Size.x()*Size.y() + j*Size.x() + i;
 }
 
 #endif
