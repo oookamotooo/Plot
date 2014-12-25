@@ -168,7 +168,7 @@ void MouseMove(int x, int y)
 	//クリティカルポイントの位置を移動
 	int dx = x - lastPos.x();
 	int dy = y - lastPos.y();	
-	auto dir = Camera::getCamera()->ScreenToWorldVector(x, y);
+	auto dir = Camera::getCamera()->ScreenToWorldVector((float)x, (float)y);
 	auto cp = sigmaPlanes[hitted]->CPoint();
 	auto camPos = Camera::getCamera()->GetPosition();
 	auto dot = (cp-camPos).dot(dir);
@@ -261,23 +261,23 @@ int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
 	Vector3d n = sigmaPlane->Normal().normalized();
 
 	bool reverse = sigmaPlane->Jacob().eigenValue[sigmaPlane->Index1()].real() < 0;
-	const double step = reverse ? -0.1 : 0.1;
+	const double step = reverse ? -0.3 : 0.3;
 	move = Vector3d::Zero();
 	int cnt = 0;
 	for (auto it = roundPoints.begin(); it != roundPoints.end(); it++){
 		auto dir = (*it) - cp;				//中心から周りの点への方向ベクトル
-		auto p = field->StreamPoint((*it), 10, step);
+		auto p = field->StreamPoint((*it), 15, 0.1, step);
 		auto vec = field->GetData(p).normalized();	//周りの点上のベクトル
 
 		//Σ面へ写像
 		auto proj_vec = vec - vec.dot(n)*n;
 
 		const double error = 0.1;
+
 		//写像後のベクトルが非常に小さい => Σ面にほぼ垂直になっている
-		//とりあえずはOKとする.
 		if (proj_vec.norm() < error){
 			cnt++;
-			move -= vec*step;
+			move -= vec;
 			continue;
 		}
 
@@ -285,11 +285,13 @@ int SearchSigmaRound(SigmaPlane *sigmaPlane, Vector3d &move)
 		//すこしずらす
 		double dot = proj_vec.dot(dir);
 		if( dot*step < 0){
-			move -= vec*step;
-			cout << dir.transpose() << "   " << proj_vec.transpose() << endl;
+			move -= vec;
 			cnt++;
 		}
 	}
+	if (move != Vector3d::Zero())
+		move.normalize();
+	move *= step;
 	return cnt;
 }
 
@@ -298,7 +300,7 @@ void Adjastment(SigmaPlane *s)
 	for (;true;){
 		Vector3d move = Vector3d::Zero();
 		int cnt = SearchSigmaRound(s, move);
-		if ( cnt < 2)
+		if ( cnt < 4)
 			break;
 		cout << "Count " << cnt << endl;
 		Vector3d newCp = s->CPoint() + move;
@@ -307,10 +309,9 @@ void Adjastment(SigmaPlane *s)
 		field->GetJacobiMatrix(newCp, jacob);
 
 		Jacobian j(jacob);
-
 		s->DebugMove(j, newCp);
-		cout << newCp.transpose() << endl;
 	}
+	cout << "new CP = " << s->CPoint().transpose() << endl;
 }
 
 //Σ面のデータを読み込む
@@ -339,16 +340,7 @@ void CalcSigmaData()
 	for (auto it = criticalPoints.begin(); it != criticalPoints.end(); it++){
 		Eigen::Matrix3d jacob;
 		field->GetJacobiMatrix((*it), jacob);
-		Eigen::SelfAdjointEigenSolver<Eigen::Matrix3cd> es(jacob.cast<complex<double>>());
-
-		complex<double> eigen[3];
-		Eigen::Vector3cd vec[3];
-		for (int i = 0; i < 3; i++){
-			eigen[i] = es.eigenvalues()[i];
-			vec[i] = es.eigenvectors().row(i);
-		}
-
-		Jacobian ja(eigen, vec);
+		Jacobian ja(jacob);
 		auto *s = new SigmaPlane(ja, (*it));
 
 		if (s->HasPlane()){
@@ -365,44 +357,20 @@ void CalcSigmaData()
 	cout << OK << endl;;
 }
 
-#include "Test.h"
-int main(int argc, char *argv[])
+//対角点の値が互いに反対を向いているグリッドをさがす
+void SearchDecomposeGrid()
 {
-	//Test::VectorTest();
-	//Test::EigenTest();
-
-	//フィールドの生成
-	field = GraphicManager::GetGraphic()->MakeField(Vector3i(), size);
-
-	//生成したフィールドにデータを読み込む
-	cout << Forming << "磁場のベクトルデータの読み込み";
-	FileManager::ReadFieldData("bfield_near_cusp.txt", field);
-	cout << OK << endl;
-
-	//毎回計算すると遅いので
-	//すでに書き出したテキストデータからΣ面のデータを読み込む
-	ReadSigmaData();
-	//計算してΣ面を導出する
-	//CalcSigmaData();
-
-	//Adjastment();
-	/*
-	Eigen::Matrix3d jacob;
-	field->GetJacobiMatrix(Vector3d(57.052, 75.082, 54.968), jacob);
-	cout << jacob << endl;
-	*/
-	/*
-	for (int i = 0; i < field->Size.x()-1; i++){
-		for (int j = 0; j < field->Size.y()-1; j++){
-			for (int k = 0; k < field->Size.z()-1; k++){
+	for (int i = 0; i < field->Size.x() - 1; i++){
+		for (int j = 0; j < field->Size.y() - 1; j++){
+			for (int k = 0; k < field->Size.z() - 1; k++){
 				int cnt = 0;
 
 				for (int n = 0; n < 4; n++){
 					int dx = n == 1, dy = n == 2, dz = n == 3;
 					Vector3d p1 = field->Data(i + dx, j + dy, k + dz).normalized();
 					Vector3d p2 = field->Data(i + 1 - dx, j + 1 - dy, k + 1 - dz).normalized();
-					bool check = p1.x()*p2.x() < 0 && p1.y()*p2.y()<0 && p1.z()*p2.z()<0;
-					if ( check )
+					bool check = p1.x()*p2.x() < 0 && p1.y()*p2.y() < 0 && p1.z()*p2.z() < 0;
+					if (check)
 						cnt++;
 				}
 
@@ -415,31 +383,45 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-	*/
-	//古いタイプの読み込み方法
-	/*
-	//ヤコビアンのデータを読み込み
-	cout << Forming << "ヤコビアンのデータを読み込み";
-	vector<MR::Jacobian> jacobians;	//ヤコビアンを格納する動的配列
-	FileManager::ReadJacobianData("p_eigen_out.txt", jacobians);
+}
+#include "Test.h"
+int main(int argc, char *argv[])
+{
+	//Test::VectorTest();
+//	Test::EigenTest();
+
+	//フィールドの生成
+	field = GraphicManager::GetGraphic()->MakeField(Vector3i(), size);
+
+	//生成したフィールドにデータを読み込む
+	cout << Forming << "磁場のベクトルデータの読み込み";
+	FileManager::ReadFieldData("bfield_near_cusp.txt", field);
 	cout << OK << endl;
 
-	//クリティカルポイントのデータを読み込み
-	cout << Forming << "クリティカルポイントの読み込み.";
-	vector<Vector3d, Eigen::aligned_allocator<Vector3d>> cpoints;	//クリティカルポイントを格納する動的配列
-	FileManager::ReadCritialPointData("cp.txt", cpoints);
-	cout << OK << endl;
+	//毎回計算すると遅いので
+	//すでに書き出したテキストデータからΣ面のデータを読み込む
+	//ReadSigmaData();
+	//計算してΣ面を導出する
+	//CalcSigmaData();
 
-	// Σ面を配列に保存
-	// ヤコビアンとクリティカルポイントの数が同じでなければならない
-	cout << Forming << "ヤコビアンとクリティカルポイントからΣ面を生成";
-	for (int i = 0; i < cpoints.size(); i++){
-	auto *s = new SigmaPlane(jacobians[i], cpoints[i]);
-	if ( s->HasPlane() )
-	sigmaPlanes.push_back(s);
+	//対角成分が互いに反対を向いているグリッドを探す
+	SearchDecomposeGrid();
+
+	for (auto it = green.begin(); it != green.end(); it++){
+		Vector3d cp = (*it).cast<double>() + Vector3d(0.5, 0.5, 0.5);
+		Eigen::Matrix3d jacob;
+		field->GetJacobiMatrix(cp, jacob);
+		Jacobian ja(jacob);
+		auto *s = new SigmaPlane(ja, cp);
+
+		if (s->HasPlane()){
+			Adjastment(s);
+			sigmaPlanes.push_back(s);
+		}
+		else{
+			delete s;
+		}
 	}
-	cout << OK << endl;
-	*/
 
 	cout << Forming << "流線の計算";
 	for(unsigned int i=0; i<sigmaPlanes.size(); i++)

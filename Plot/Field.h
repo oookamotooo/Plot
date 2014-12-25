@@ -35,7 +35,7 @@ public:
 
 	//ある点から流線を流したnステップ後の位置を取得する.
 	// step 流入 or 流出を含めたルンゲクッタ法に用いる係数, len = 次の線までの長さ
-	Vector3d StreamPoint(const Vector3d &initialPoint, const int n, const double step = 0.5, const double len = 0.1);
+	Vector3d StreamPoint(const Vector3d &initialPoint, const int n, const double len = 0.1, const double step = 0.5);
 
 	void Draw();
 

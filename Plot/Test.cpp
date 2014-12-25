@@ -3,29 +3,44 @@
 #include <complex>
 #include <iostream>
 #include <vector>
-
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
-
+#include <Eigen/EigenValues>
 using namespace Eigen;
 using namespace std;
 
 void Test::EigenTest()
 {
 	Eigen::Matrix2d a;
-	a << 1, 2, -2, 1;
+	a << 1, 2, 2, 1;
 	Eigen::Matrix2cd b = a.cast<complex<double>>();
 	cout << b << endl;
-	Eigen::SelfAdjointEigenSolver<Eigen::Matrix2cd> es(b);
+	Eigen::EigenSolver<Eigen::Matrix2d> es(a);
 	if (es.info() != Eigen::Success)
 		cout << "Failed" << endl;
 	else
 	{
 		cout << "Success " << endl;
 		cout << es.eigenvalues()[0] << endl;
+		cout << es.eigenvectors().col(0).transpose() << endl;
+
+		cout << "--------------" << endl;
+		cout << es.eigenvalues()[1] << endl;
+		cout << es.eigenvectors().col(1).transpose() << endl;
+		cout << "--------------" << endl;
+		cout << es.eigenvectors() << endl;
 	}
+
+	MatrixXd A(2, 2);
+	A << 1, 2,
+		 2, 1;
+	cout << A << endl;
+
+	EigenSolver<MatrixXd> ES(A);
+	//Vector2cd v1 = ES.eigenvectors();
+	cout << ES.eigenvectors().row(0) << endl;
 }
 
 void Test::VectorTest()

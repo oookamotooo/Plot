@@ -13,7 +13,7 @@ public:
 	/**
 	ヤコビアンのデータを "fileName" から読み込む.
 	データフォーマットは
-
+	クリティカルポイント.x クリティカルポイント.y クリティカルポイント.z
 	固有値1 固有値2 固有値3
 	固有ベクトル1.x 固有ベクトル2.x 固有ベクトル3.x
 	固有ベクトル1.y 固有ベクトル2.y 固有ベクトル3.y
@@ -28,10 +28,12 @@ public:
 	Rで書き出したデータなら, JacobianDataFormatter.rb で上記のフォーマットに変換できる
 	読み込み結果はresに格納される
 	*/ 
-	static void ReadJacobianData(const std::string fileName, std::vector<Jacobian> &res);
-	static void WriteSigmaPlaneData(const std::string fileName, const std::vector<SigmaPlane*> &sigmas);
 	static void ReadSigmaPlaneData(const std::string fileName, std::vector<SigmaPlane*> &sigmas);
 
+	static void WriteSigmaPlaneData(const std::string fileName, const std::vector<SigmaPlane*> &sigmas);
+
+	//古いタイプの読み込み
+	static void ReadJacobianData(const std::string fileName, std::vector<Jacobian> &res);
 	static void ReadCriticalPointData(const std::string fileName, std::vector<Vector3d, Eigen::aligned_allocator<Vector3d>> &res);
 
 	//磁気圏のデータを読み込む

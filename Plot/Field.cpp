@@ -45,6 +45,7 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 	Vector3d res(0, 0, 0);
 	const int index = Index(i, j, k);
 
+	//forループによる展開は時間がかかりそうなのでやめる.
 	res += (1 - dx)*(1 - dy)*(1 - dz)* data[index];
 	res += (1 - dx)*     dy *(1 - dz)* data[index + Delta.y()];
 	res += (1 - dx)*(1 - dy)*     dz * data[index + Delta.z()];
@@ -53,22 +54,6 @@ Vector3d Field::GetData(const double &x, const double &y, const double &z) const
 	res +=      dx *     dy *(1 - dz)* data[index + Delta.x() + Delta.y()];
 	res +=      dx *(1 - dy)*     dz * data[index + Delta.x() + Delta.z()];
 	res +=      dx *     dy *     dz * data[index + Delta.x() + Delta.y() + Delta.z()];
-	//forループによる展開は時間がかかりそうなのでやめる.
-		/*
-	for (int di = 0; di < 2; di++){
-		double cx = (di == 0 ? (1.0 - dx) : dx);
-
-		int deltaI = (di == 0 ? 0 : Delta.x());
-
-		for (int dj = 0; dj < 2; dj++){
-			double cy = (dj == 0 ? (1.0 - dy) : dy);
-
-			for (int dk = 0; dk < 2; dk++){
-				double cz = (dk == 0 ? (1.0 - dz) : dz);
-				res +=  cx*cy*cz*data[Index(i + di, j + dj, k + dk)];
-			}
-		}
-	}*/
 
 	return res;
 }
@@ -145,7 +130,7 @@ void Field::CalcStreamLine(Vector3d p, StreamLine &streamLine, const double len,
 	}
 }
 
-Vector3d Field::StreamPoint(const Vector3d &initialPoint, const int n, const double step, const double len)
+Vector3d Field::StreamPoint(const Vector3d &initialPoint, const int n, const double len, const double step)
 {
 	Vector3d p = initialPoint;
 	for (int i = 0; i < n; i++){
@@ -409,7 +394,7 @@ void Field::GetJacobiMatrix(const Vector3d &p, Eigen::Matrix3d &mat)
 bool Field::SubGridSearch(const Vector3d grid[2][2][2], Vector3d &delta)
 {
 	const int subGridNum = 500;			//サブグリッド分割数
-	const double epsilon = 0.000001;	//許容誤差
+	const double epsilon = 0.00001;	//許容誤差
 
 	// x,y,z成分のうち, ひとつでも, 8点すべての符号が同じものがあれば, 
 	//0ベクトルになることは ありえないのでfalseを返す

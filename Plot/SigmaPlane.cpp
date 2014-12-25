@@ -124,7 +124,6 @@ void SigmaPlane::DebugMove(const Jacobian &j, const Eigen::Vector3d &cp)
 		glBufferData(GL_ARRAY_BUFFER, (GLuint)(vertices.size() * sizeof(Vector3f)), vertices[0].data(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	cout << "New CP " << criticalPoint.x() << "," << criticalPoint.y() << "," << criticalPoint.z() << endl;
 }
 
 #define BUFFER_OFFSET(bytes) ( (GLubyte*)NULL + (bytes))

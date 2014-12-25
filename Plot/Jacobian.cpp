@@ -27,10 +27,10 @@ Jacobian::Jacobian(std::complex<double> _eigenValue[3], Eigen::Vector3cd _eigenV
 
 Jacobian::Jacobian(Eigen::Matrix3d jacobMatrix)
 {
-	Eigen::SelfAdjointEigenSolver<Eigen::Matrix3cd> es(jacobMatrix.cast<complex<double>>());
+	Eigen::EigenSolver<Eigen::Matrix3d> es(jacobMatrix);
 
 	for (int i = 0; i < 3; i++){
-		eigenValue[i] = es.eigenvalues()[i];
-		eigenVector[i] = es.eigenvectors().row(i);
+		 eigenValue[i] = es.eigenvalues()[i];
+		eigenVector[i] = es.eigenvectors().col(i);
 	}
 }
